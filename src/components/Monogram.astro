@@ -1,0 +1,22 @@
+---
+/** "DC" monogram, drawn with currentColor. public/favicon.svg uses the same paths. */
+interface Props {
+  class?: string;
+}
+
+const { class: className = 'h-6 w-auto' } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 30 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  <path d="M3 5h2a7 7 0 0 1 0 14H3Z"></path>
+  <path d="M26.45 7.05a7 7 0 1 0 0 9.9"></path>
+</svg>

@@ -1,0 +1,208 @@
+---
+/**
+ * Selected work. Wide screens: the projects scroll on the left while a pinned
+ * frame on the right wipes from one live site screenshot to the next as each
+ * project reaches the middle of the screen. Phones, and pages without
+ * JavaScript, get stacked cards with their own screenshot.
+ * Screenshots are real captures of the live sites (public/projects/).
+ */
+import { getCollection } from 'astro:content';
+
+import { site } from '../../data/site';
+import Icon from '../Icon.astro';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const host = (url: string) => new URL(url).host;
+const pad = (n: number) => String(n).padStart(2, '0');
+const total = pad(projects.length);
+const srcset = (image: string) => `${image.replace('.webp', '-800.webp')} 800w, ${image} 1600w`;
+
+const link =
+  'inline-flex items-center gap-2 rounded-full border border-ink/20 px-3 py-2 text-sm font-semibold text-ink transition duration-700 ease-fluid hover:border-ink/40 hover:bg-ink/5 active:scale-[0.98]';
+---
+
+<section id="work" tabindex="-1" aria-labelledby="work-title" class="scroll-mt-24 px-4 py-24 outline-none md:px-16">
+  <p class="font-mono text-sm text-accent">~/work</p>
+  <h2 id="work-title" class="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Selected work</h2>
+  <p class="mt-4 max-w-xl text-lg text-ink/90">Four projects that are live on Vercel. Each links to the running site and its code.</p>
+
+  <div data-work class="mt-12 lg:mt-0 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+    <ol class="space-y-16 lg:space-y-0 lg:pb-[12.5svh]">
+      {
+        projects.map(({ data }, i) => (
+          <li data-work-item={i} class="work-item lg:flex lg:min-h-[75svh] lg:items-center">
+            <article class="w-full" aria-labelledby={`project-${i}`}>
+              <figure class="work-inline mb-6 border border-ink/10">
+                <div class="border-b border-ink/10 px-3 py-2 font-mono text-xs text-muted">{host(data.live)}</div>
+                <img
+                  src={data.image}
+                  srcset={srcset(data.image)}
+                  sizes="(min-width: 768px) 60vw, 100vw"
+                  alt={`${data.title}, home page`}
+                  width="1600"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                  class="aspect-video w-full object-cover"
+                />
+              </figure>
+
+              <p class="work-num flex items-center gap-2 font-mono text-sm text-muted">
+                <span class="work-marker size-2 bg-accent" aria-hidden="true" />
+                {pad(i + 1)} / {total}
+              </p>
+              <h3 id={`project-${i}`} class="mt-3 text-3xl font-semibold tracking-tight">
+                {data.title}
+              </h3>
+              <p class="mt-3 text-base text-ink/90">
+                {data.summary}
+              </p>
+              <dl class="mt-4 space-y-2 text-sm">
+                <div>
+                  <dt class="font-mono text-xs text-muted">Role</dt>
+                  <dd class="mt-1 text-ink/90">{data.role}</dd>
+                </div>
+                <div>
+                  <dt class="font-mono text-xs text-muted">Outcome</dt>
+                  <dd class="mt-1 text-ink/90">{data.outcome}</dd>
+                </div>
+              </dl>
+              <p class="mt-4 font-mono text-xs text-muted">
+                <span class="sr-only">Stack: </span>
+                {data.stack.join(' · ')}
+              </p>
+              <div class="mt-6 flex flex-wrap gap-3">
+                <a href={data.live} class={link} aria-label={`Live site: ${data.title}`}>
+                  Live site
+                  <Icon name="arrowUpRight" />
+                </a>
+                <a href={data.repo} class={link} aria-label={`Code: ${data.title}`}>
+                  <Icon name="github" />
+                  Code
+                </a>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
+
+    <!-- The pinned frame: wide screens with JavaScript only. It repeats the screenshots above. -->
+    <div class="work-pin hidden" aria-hidden="true">
+      <div class="sticky top-0 flex h-svh flex-col justify-center">
+        <div class="border border-ink/10 bg-canvas">
+          <div class="relative h-8 overflow-hidden border-b border-ink/10 font-mono text-xs text-muted">
+            {
+              projects.map(({ data }, i) => (
+                <span data-frame-url={i} class="work-url absolute inset-x-3 top-2">
+                  {host(data.live)}
+                </span>
+              ))
+            }
+          </div>
+          <div class="relative aspect-video overflow-hidden">
+            {
+              projects.map(({ data }, i) => (
+                <img
+                  data-frame={i}
+                  src={data.image}
+                  srcset={srcset(data.image)}
+                  sizes="58vw"
+                  alt=""
+                  width="1600"
+                  height="900"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  class="work-shot absolute inset-0 size-full object-cover"
+                />
+              ))
+            }
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-4 font-mono text-xs text-muted">
+          <span data-work-count>01</span>
+          <span class="relative h-px flex-1 bg-ink/15">
+            <span data-work-progress class="work-progress absolute inset-0 origin-left bg-accent"></span>
+          </span>
+          <span>{total}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a
+    href={site.github}
+    class="mt-16 inline-flex items-center gap-2 rounded-full border border-ink/20 px-3 py-2 text-base font-semibold transition duration-700 ease-fluid hover:border-ink/40 hover:bg-ink/5 active:scale-[0.98]"
+  >
+    <Icon name="github" />
+    Browse all my repos on GitHub
+    <Icon name="arrowUpRight" />
+  </a>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-work]');
+  if (root) {
+    const items = [...root.querySelectorAll<HTMLElement>('[data-work-item]')];
+    const shots = [...root.querySelectorAll<HTMLElement>('[data-frame]')];
+    const urls = [...root.querySelectorAll<HTMLElement>('[data-frame-url]')];
+    const count = root.querySelector<HTMLElement>('[data-work-count]');
+    const progress = root.querySelector<HTMLElement>('[data-work-progress]');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wide = window.matchMedia('(min-width: 1024px)');
+    let active = -1;
+    let layer = 1;
+
+    // The frame only shows on wide screens: load all four there so no wipe waits on a download.
+    if (wide.matches) root.querySelectorAll<HTMLImageElement>('img[data-frame]').forEach((img) => (img.loading = 'eager'));
+
+    // The new screenshot wipes up over the old one when scrolling down, down when scrolling up.
+    function show(next: number) {
+      if (next === active) return;
+      const forward = next > active;
+      const shot = shots[next];
+      if (shot) {
+        shot.style.zIndex = String(++layer);
+        // Jump to the clipped start without animating, then let the wipe run.
+        shot.style.transition = 'none';
+        shot.classList.remove('is-shown');
+        shot.dataset.from = forward ? 'below' : 'above';
+        if (reduce || active === -1) shot.classList.add('is-shown');
+        void shot.offsetWidth;
+        shot.style.transition = '';
+        shot.classList.add('is-shown');
+      }
+      urls.forEach((url, i) => url.classList.toggle('is-shown', i === next));
+      items.forEach((item, i) => item.toggleAttribute('data-active', i === next));
+      if (count) count.textContent = String(next + 1).padStart(2, '0');
+      if (progress) progress.style.transform = `scaleX(${(next + 1) / items.length})`;
+      active = next;
+    }
+
+    // A project becomes active when it crosses the middle of the screen.
+    const centre = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) show(items.indexOf(entry.target as HTMLElement));
+        }
+      },
+      { rootMargin: '-50% 0px -50% 0px' },
+    );
+    items.forEach((item) => centre.observe(item));
+    show(0);
+
+    // Phones and narrow screens: each card fades up once as it comes into view.
+    const reveal = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-in');
+          reveal.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '0px 0px -15% 0px' },
+    );
+    if (!wide.matches && !reduce) items.forEach((item) => reveal.observe(item));
+    else items.forEach((item) => item.classList.add('is-in'));
+  }
+</script>

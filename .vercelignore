@@ -1,0 +1,12 @@
+# Source masters and working files the site never serves
+public/journey/
+design/
+resume/
+tests/
+test-results/
+playwright-report/
+.claude/
+.codex/
+.cursor/
+dist/
+.astro/

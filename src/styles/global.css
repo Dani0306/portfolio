@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+/* Design tokens. `canvas` is the page background, `ink` the main text color. */
+@theme {
+  --color-canvas: #0e0f12;
+  --color-ink: #ece8df;
+  --color-muted: #8a8f98;
+  --color-amber: #f2a33a;
+  --color-green: #3fb950;
+
+  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Tokens that point at runtime variables, so they resolve per element. */
+@theme inline {
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-jetbrains-mono);
+  --color-accent: var(--accent);
+}
+
+:root {
+  --accent: var(--color-amber);
+}
+
+/* The scroll world switches the accent while the testing stop is on screen. */
+:root[data-accent="green"] {
+  --accent: var(--color-green);
+}
+
+@layer base {
+  html {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    /* Only the weights in the font files: never fake bold or italics. */
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-canvas);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+}
+
+/* ---------- Scroll world ----------
+   Unlayered, so these win over the engine's own `@layer sw` defaults. */
+
+/* With JavaScript the engine replaces the server rendered stops; hide them until it mounts. */
+.js [data-world-static] {
+  visibility: hidden;
+}
+
+.sw-root {
+  --sw-bg: var(--color-canvas);
+  --sw-ink: var(--color-ink);
+  --sw-ink-soft: var(--color-muted);
+  --sw-accent: var(--color-amber);
+  --sw-font-display: var(--font-geist);
+  --sw-font-body: var(--font-geist);
+}
+
+/* Each stop's copy carries its own accent (green at the testing stop). */
+.sw-copy {
+  --accent: var(--sw-accent, var(--color-amber));
+}
+
+/* Text scrim, shared by the engine and the no JavaScript stops.
+   Desktop: dark on the left behind the text column. Phones: dark at the bottom.
+   Keep these numbers in sync with scripts/check-contrast.mjs. */
+.sw-root .sw-copylayer::before,
+.world-scrim {
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgb(14 15 18 / 0.95) 0%,
+    rgb(14 15 18 / 0.92) 50%,
+    rgb(14 15 18 / 0) 90%
+  );
+}
+
+@media (max-width: 860px) {
+  .sw-root .sw-copylayer::before,
+  .world-scrim {
+    background: linear-gradient(
+      0deg,
+      rgb(14 15 18 / 0.95) 0%,
+      rgb(14 15 18 / 0.92) 65%,
+      rgb(14 15 18 / 0) 95%
+    );
+  }
+}
+
+/* Text column: 64px from the left like the header, 576px wide (680px for the hero). */
+.sw-root .sw-copy {
+  left: 4rem;
+  width: min(48vw, 36rem);
+}
+
+.sw-root .sw-copy--wide {
+  width: min(56vw, 42.5rem);
+}
+
+@media (max-width: 860px) {
+  .sw-root .sw-copy,
+  .sw-root .sw-copy--wide {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+
+  /* The route rail would sit on top of the full width copy; the header menu covers navigation. */
+  .sw-root .sw-route {
+    display: none;
+  }
+
+  /* The hero copy reaches the bottom of the screen on phones; swiping needs no hint. */
+  .sw-root .sw-hint {
+    display: none;
+  }
+}
+
+.sw-root .sw-hint {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.sw-root .sw-route__label {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  background: rgb(14 15 18 / 0.85);
+  border-color: rgb(236 232 223 / 0.1);
+}
+
+/* ---------- Selected work ----------
+   Wide screens with JavaScript: a pinned frame replaces each card's own screenshot. */
+@media (min-width: 1024px) {
+  .js .work-pin {
+    display: block;
+  }
+
+  .js .work-inline {
+    display: none;
+  }
+}
+
+.work-marker {
+  opacity: 0;
+  transition: opacity 700ms var(--ease-fluid);
+}
+
+.work-item[data-active] .work-marker {
+  opacity: 1;
+}
+
+.work-item[data-active] .work-num {
+  color: var(--color-ink);
+}
+
+/* Each screenshot starts clipped away and wipes open over the one below it. */
+.work-shot {
+  clip-path: inset(100% 0 0 0);
+  transform: scale(1.04);
+  transition:
+    clip-path 1000ms var(--ease-fluid),
+    transform 1400ms var(--ease-fluid);
+}
+
+.work-shot[data-from="above"] {
+  clip-path: inset(0 0 100% 0);
+}
+
+.work-shot.is-shown {
+  clip-path: inset(0);
+  transform: scale(1);
+}
+
+.work-url {
+  opacity: 0;
+  transform: translateY(100%);
+  transition:
+    opacity 700ms var(--ease-fluid),
+    transform 700ms var(--ease-fluid);
+}
+
+.work-url.is-shown {
+  opacity: 1;
+  transform: none;
+}
+
+.work-progress {
+  transform: scaleX(0);
+  transition: transform 1000ms var(--ease-fluid);
+}
+
+/* Phones and narrow screens: cards fade up as they arrive. */
+@media (max-width: 1023px) {
+  .js .work-item {
+    transition:
+      opacity 900ms var(--ease-fluid),
+      transform 900ms var(--ease-fluid),
+      filter 900ms var(--ease-fluid);
+  }
+
+  .js .work-item:not(.is-in) {
+    opacity: 0;
+    transform: translateY(4rem);
+    filter: blur(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-shot,
+  .work-url,
+  .work-progress,
+  .work-marker,
+  .js .work-item {
+    transition: none;
+  }
+
+  .work-shot {
+    transform: none;
+  }
+}
+
+/* Short phone screens: the About facts (repeated in Experience) and the code snippet
+   give way so each stop still fits under the header. */
+@media (max-width: 860px) and (max-height: 720px) {
+  .sw-root .about-facts,
+  .sw-root .snippet,
+  .sw-root .log-extra {
+    display: none;
+  }
+}
+
+/* Line number gutter: as tall as the text beside it, cut on a whole line. */
+.gutter {
+  height: 100%;
+  height: round(down, 100%, 1.5rem);
+}
+
+/* The blinking caret after the hero name. */
+.caret {
+  display: inline-block;
+  width: 0.5ch;
+  height: 0.85em;
+  margin-left: 0.1em;
+  vertical-align: -0.05em;
+  background-color: var(--color-accent);
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
+}
+
+/* Mobile menu: a native popover, so it opens without JavaScript. */
+#site-menu {
+  opacity: 0;
+  transition:
+    opacity 500ms var(--ease-fluid),
+    display 500ms allow-discrete,
+    overlay 500ms allow-discrete;
+}
+
+#site-menu:popover-open {
+  opacity: 1;
+}
+
+@starting-style {
+  #site-menu:popover-open {
+    opacity: 0;
+  }
+}
+
+#site-menu [data-menu-link] {
+  opacity: 0;
+  transform: translateY(3rem);
+  transition:
+    opacity 700ms var(--ease-fluid),
+    transform 700ms var(--ease-fluid);
+}
+
+#site-menu:popover-open [data-menu-link] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  #site-menu:popover-open [data-menu-link] {
+    opacity: 0;
+    transform: translateY(3rem);
+  }
+}
+
+/* The close button starts as the hamburger and morphs into an X as the menu opens. */
+[data-menu-close] span span {
+  transition: transform 500ms var(--ease-fluid);
+}
+
+#site-menu:popover-open [data-menu-close] span span:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+#site-menu:popover-open [data-menu-close] span span:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+@starting-style {
+  #site-menu:popover-open [data-menu-close] span span {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #site-menu,
+  #site-menu [data-menu-link],
+  [data-menu-close] span span {
+    transition: none;
+  }
+}

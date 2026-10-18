@@ -1,0 +1,74 @@
+---
+/**
+ * One stop of the scroll world. Server rendered so it reads without JavaScript:
+ * a full screen section with the stop's still behind a scrim. When the engine
+ * mounts, it adopts the <article> as this stop's copy and drops the section.
+ * The heading inside the slot must use the id `${id}-title`.
+ */
+import { accentColor, world } from '../../config/world';
+
+interface Props {
+  index: number;
+  /** The hero needs room for its headline (680px per the design rules). */
+  wide?: boolean;
+}
+
+const { index, wide = false } = Astro.props;
+const stop = world.stops[index];
+const files = world.stops.map((s) => s.file);
+---
+
+<section data-stop-static class="relative flex min-h-svh items-end px-4 pt-24 pb-16 min-[861px]:items-center min-[861px]:px-16">
+  <img
+    src={stop.still}
+    srcset={`${stop.stillMobile} 1280w, ${stop.still} 1920w`}
+    sizes="100vw"
+    width="1920"
+    height="1080"
+    alt=""
+    loading={index === 0 ? 'eager' : 'lazy'}
+    fetchpriority={index === 0 ? 'high' : 'auto'}
+    decoding="async"
+    class="absolute inset-0 size-full object-cover"
+    style={`object-position: ${stop.focusX}% 50%`}
+  />
+  <div class="world-scrim absolute inset-0" aria-hidden="true"></div>
+
+  <article
+    id={stop.id}
+    data-stop-copy
+    data-stop={stop.id}
+    aria-labelledby={`${stop.id}-title`}
+    class:list={['sw-copy relative w-full scroll-mt-24', wide ? 'sw-copy--wide' : '']}
+    style={`--sw-accent: ${accentColor[stop.accent]}`}
+  >
+    <!-- Editor tab bar: the current file is highlighted; phones show only that one. -->
+    <div class="flex font-mono text-xs" aria-hidden="true">
+      {
+        files.map((file, i) => (
+          <span
+            class:list={[
+              'px-3 py-2 whitespace-nowrap',
+              i === index ? 'bg-ink/10 text-ink' : 'text-muted max-[860px]:hidden',
+            ]}
+          >
+            {i === index && <span class="mr-2 inline-block size-2 bg-accent align-middle" />}
+            {file}
+          </span>
+        ))
+      }
+    </div>
+
+    <div class="mt-6 grid grid-cols-[auto_1fr] gap-x-6 max-[860px]:mt-4 max-[860px]:grid-cols-1">
+      <!-- Line number gutter. Decorative: clipped to the height of the text beside it. -->
+      <div class="relative w-6 max-[860px]:hidden" aria-hidden="true">
+        <ol class="gutter absolute inset-x-0 top-0 overflow-hidden text-right font-mono text-xs leading-6 text-muted">
+          {Array.from({ length: 40 }, (_, n) => <li>{n + 1}</li>)}
+        </ol>
+      </div>
+      <div class="min-w-0">
+        <slot />
+      </div>
+    </div>
+  </article>
+</section>

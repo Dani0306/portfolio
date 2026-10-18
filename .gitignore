@@ -1,6 +1,10 @@
 # build output
 dist/
 
+# Playwright output
+test-results/
+playwright-report/
+
 # generated types
 .astro/
 
@@ -22,3 +26,4 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+.vercel

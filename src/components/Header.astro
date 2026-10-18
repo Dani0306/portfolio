@@ -1,0 +1,123 @@
+---
+import { nav, site } from '../data/site';
+import Monogram from './Monogram.astro';
+
+const linkClass =
+  'rounded-full px-3 py-2 text-sm font-medium text-muted transition-colors duration-700 ease-fluid hover:text-ink aria-[current=true]:text-ink';
+---
+
+<header class="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-6 md:justify-start md:px-16">
+  <div
+    class="pointer-events-auto flex w-max items-center gap-1 rounded-full border border-ink/10 bg-canvas/70 p-2 backdrop-blur-md"
+  >
+    <a href="/" class="grid size-10 place-items-center rounded-full text-ink hover:bg-ink/5" aria-label={`${site.name}, home`}>
+      <Monogram class="h-5 w-auto" />
+    </a>
+
+    <nav aria-label="Main" class="hidden md:block">
+      <ul class="flex items-center gap-1">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} class={linkClass} data-nav-link>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a href="#work" data-skip-intro class="rounded-full px-3 py-2 font-mono text-sm text-muted hover:text-ink">
+      Skip intro
+    </a>
+
+    <a
+      href={`mailto:${site.email}`}
+      class="rounded-full bg-accent px-3 py-2 text-sm font-semibold text-canvas transition-colors duration-700 ease-fluid hover:brightness-110 active:scale-[0.98]"
+    >
+      Get in touch
+    </a>
+
+    <button
+      type="button"
+      popovertarget="site-menu"
+      aria-label="Open menu"
+      class="grid size-10 place-items-center rounded-full text-ink hover:bg-ink/5 md:hidden"
+    >
+      <span class="relative block h-2 w-4" aria-hidden="true">
+        <span class="absolute inset-x-0 top-0 h-px bg-current"></span>
+        <span class="absolute inset-x-0 bottom-0 h-px bg-current"></span>
+      </span>
+    </button>
+  </div>
+</header>
+
+<!-- Native popover: opens and closes without JavaScript. -->
+<nav
+  id="site-menu"
+  popover
+  aria-label="Main"
+  class="fixed inset-0 m-0 size-full max-h-none max-w-none border-0 bg-canvas/80 p-0 text-ink backdrop-blur-3xl md:hidden"
+>
+  <button
+    type="button"
+    popovertarget="site-menu"
+    popovertargetaction="hide"
+    aria-label="Close menu"
+    data-menu-close
+    class="absolute top-8 right-6 grid size-10 place-items-center rounded-full hover:bg-ink/5"
+  >
+    <span class="relative block h-2 w-4" aria-hidden="true">
+      <span class="absolute inset-x-0 top-0 h-px bg-current"></span>
+      <span class="absolute inset-x-0 bottom-0 h-px bg-current"></span>
+    </span>
+  </button>
+  <ul class="flex h-full flex-col justify-center gap-6 px-6">
+    {
+      nav.map((item, i) => (
+        <li>
+          <a
+            href={item.href}
+            data-menu-link
+            class="text-4xl font-semibold tracking-tight"
+            style={`transition-delay: ${100 + i * 50}ms`}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  // Close the menu after picking a section.
+  const menu = document.getElementById('site-menu');
+  menu?.querySelectorAll('[data-menu-link]').forEach((link) => {
+    link.addEventListener('click', () => menu.hidePopover());
+  });
+
+  // Mark the section currently on screen in the navigation. Waits for DOMContentLoaded,
+  // which fires after every module script, so the scroll world has moved its stop ids
+  // onto their scroll markers by then.
+  document.addEventListener('DOMContentLoaded', () => {
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
+    const sections = links
+      .map((link) => document.getElementById(link.hash.slice(1)))
+      .filter((section): section is HTMLElement => section !== null);
+
+    const onScreen = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) onScreen.add(entry.target.id);
+          else onScreen.delete(entry.target.id);
+        }
+        links.forEach((link) => link.setAttribute('aria-current', String(onScreen.has(link.hash.slice(1)))));
+      },
+      { rootMargin: '-45% 0px -45% 0px' },
+    );
+    sections.forEach((section) => observer.observe(section));
+  });
+</script>

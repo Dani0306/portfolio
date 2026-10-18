@@ -1,0 +1,277 @@
+---
+/**
+ * The scroll world: six stops joined by five clips, scrubbed by scroll.
+ * Without JavaScript it is six full screen sections, each with its still.
+ * With JavaScript, src/scripts/scroll-world.js adopts each stop's <article>
+ * as its copy and plays the clips between the stops.
+ */
+import { getCollection } from 'astro:content';
+
+import { accentColor, world } from '../../config/world';
+import { lastPush } from '../../lib/github';
+import { site } from '../../data/site';
+import { about, hero, howIWork, shipping, stack, testing } from '../../data/stops';
+import CopyEmailButton from '../CopyEmailButton.astro';
+import Icon from '../Icon.astro';
+import Stop from './Stop.astro';
+
+const config = {
+  stopScroll: world.stopScroll,
+  connScroll: world.connScroll,
+  crossfade: world.crossfade,
+  copyHold: world.copyHold,
+  smoothing: world.smoothing,
+  stops: world.stops.map((stop) => ({
+    id: stop.id,
+    label: stop.label,
+    still: stop.still,
+    stillMobile: stop.stillMobile,
+    focusX: stop.focusX,
+    scroll: stop.scroll,
+    accent: stop.accent,
+    accentColor: accentColor[stop.accent],
+  })),
+  connectors: world.connectors,
+  connectorsMobile: world.connectorsMobile,
+};
+
+// The deploy log: every live project and the date of its latest push, read at build time.
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const deploys = await Promise.all(
+  projects.map(async ({ data }) => ({ host: new URL(data.live).host, href: data.live, title: data.title, date: await lastPush(data.repo) })),
+);
+
+const heading = 'text-4xl font-semibold tracking-tight max-[860px]:text-3xl';
+const body = 'mt-4 text-lg text-ink/90 max-[860px]:mt-3 max-[860px]:text-base';
+const primary =
+  'inline-flex items-center gap-2 rounded-full bg-accent px-3 py-2 text-base font-semibold text-canvas transition duration-700 ease-fluid hover:brightness-110 active:scale-[0.98]';
+const secondary =
+  'inline-flex items-center gap-2 rounded-full border border-ink/20 px-3 py-2 text-base font-semibold text-ink transition duration-700 ease-fluid hover:border-ink/40 hover:bg-ink/5 active:scale-[0.98]';
+
+---
+
+<div data-world data-config={JSON.stringify(config)} class="relative">
+  <div data-world-static>
+    <Stop index={0} wide>
+      <h1 id="hello-title" class="text-5xl font-semibold tracking-tight max-[860px]:text-4xl">
+        <span class="bg-linear-to-r from-ink to-muted bg-clip-text text-transparent">{site.name}</span><span
+          class="caret"
+          aria-hidden="true"></span>
+        <span class="mt-2 block text-2xl font-medium tracking-normal text-ink/90 max-[860px]:text-xl">{site.role}</span>
+      </h1>
+      <p class="mt-6 text-xl text-ink max-[860px]:mt-4 max-[860px]:text-lg">{hero.positioning}</p>
+      <div class="mt-8 flex flex-wrap items-center gap-3 max-[860px]:mt-6">
+        <a href={`mailto:${site.email}`} class={primary}>
+          <Icon name="envelope" />
+          Get in touch
+        </a>
+        <CopyEmailButton />
+      </div>
+      <ul class="mt-6 flex flex-wrap gap-2 font-mono text-xs" aria-label="Availability">
+        <li class="inline-flex items-center gap-2 rounded-full border border-accent/60 bg-accent/10 px-3 py-1 font-medium text-ink">
+          <span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
+          {site.availableNow}
+        </li>
+        {site.availability.map((pill) => <li class="rounded-full border border-ink/15 px-3 py-1 text-ink">{pill}</li>)}
+      </ul>
+    </Stop>
+
+    <Stop index={1}>
+      <h2 id="about-title" class={heading}>{about.title}</h2>
+      {about.body.map((paragraph) => <p class={body}>{paragraph}</p>)}
+      <ul class="about-facts mt-6 space-y-2 text-base text-ink/90 max-[860px]:mt-4 max-[860px]:text-sm">
+        {about.facts.map((fact) => <li>{fact}</li>)}
+      </ul>
+    </Stop>
+
+    <Stop index={2}>
+      <h2 id="stack-title" class={heading}>{stack.title}</h2>
+      <dl class="mt-6 grid grid-cols-2 gap-6 max-[860px]:mt-4 max-[860px]:gap-4">
+        {
+          stack.groups.map((group) => (
+            <div>
+              <dt class="font-mono text-sm text-muted">{group.label}</dt>
+              <dd class="mt-2 text-base text-ink max-[860px]:mt-1 max-[860px]:text-sm">{group.items.join(', ')}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </Stop>
+
+    <Stop index={3}>
+      <h2 id="how-i-work-title" class={heading}>{howIWork.title}</h2>
+      <p class={body}>{howIWork.body}</p>
+      <ol class="mt-6 space-y-3 max-[860px]:mt-4 max-[860px]:space-y-2">
+        {
+          howIWork.steps.map((step, i) => (
+            <li class="grid grid-cols-[auto_1fr] gap-x-3 text-base max-[860px]:text-sm">
+              <span class="font-mono text-sm text-accent" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <p>
+                <span class="font-semibold text-ink">{step.title}.</span>
+                <span class="text-ink/90"> {step.body}</span>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+      <figure class="snippet mt-6 border border-ink/10 bg-canvas/60 max-[860px]:mt-4">
+        <figcaption class="flex items-center justify-between gap-3 border-b border-ink/10 px-3 py-2 font-mono text-xs text-muted">
+          <span class="truncate">{howIWork.snippet.project} · {howIWork.snippet.path}</span>
+          <a href={howIWork.snippet.url} class="shrink-0 text-ink hover:text-accent" aria-label={`View ${howIWork.snippet.path} on GitHub`}>
+            View on GitHub
+          </a>
+        </figcaption>
+        <pre class="overflow-x-auto px-3 py-3 font-mono text-xs leading-5"><code>{
+          howIWork.snippet.code.map((line, i) => (
+            <span class="block"><span class="mr-4 inline-block w-5 text-right text-muted select-none" aria-hidden="true">{howIWork.snippet.from + i}</span><span class="text-ink">{line}</span></span>
+          ))
+        }</code></pre>
+      </figure>
+    </Stop>
+
+    <Stop index={4}>
+      <h2 id="testing-title" class={heading}>{testing.title}</h2>
+      <p class={body}>{testing.body}</p>
+      <ul class="mt-4 space-y-2 text-base text-ink/90 max-[860px]:text-sm">
+        {
+          testing.checks.map((check) => (
+            <li class="flex gap-3">
+              <span class="font-mono text-accent" aria-hidden="true">✓</span>
+              {check}
+            </li>
+          ))
+        }
+      </ul>
+      <a href={testing.link.href} class="mt-6 inline-flex items-center gap-2 font-mono text-sm text-muted hover:text-ink">
+        <Icon name="github" />
+        {testing.link.label}
+        <Icon name="arrowUpRight" />
+      </a>
+    </Stop>
+
+    <Stop index={5}>
+      <h2 id="shipping-title" class={heading}>{shipping.title}</h2>
+      <p class={body}>{shipping.body}</p>
+      <figure class="mt-6 border border-ink/10 bg-canvas/60 max-[860px]:mt-4">
+        <figcaption class="log-extra border-b border-ink/10 px-3 py-2 font-mono text-xs text-muted">deploy.log</figcaption>
+        <div class="px-3 py-3 font-mono text-xs leading-6">
+          <p class="log-extra text-muted" aria-hidden="true">$ deploy --all</p>
+          <ul aria-label="Live projects">
+            {
+              deploys.map((deploy) => (
+                <li class="flex items-baseline gap-3">
+                  <span class="text-accent" aria-hidden="true">✓</span>
+                  <a href={deploy.href} class="min-w-0 truncate text-ink hover:text-accent" aria-label={`${deploy.title}, live at ${deploy.host}`}>
+                    {deploy.host}
+                  </a>
+                  {deploy.date && (
+                    <time datetime={deploy.date} class="ml-auto shrink-0 text-muted">
+                      <span class="sr-only">last updated </span>
+                      {deploy.date}
+                    </time>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+          <p class="log-extra text-muted">{deploys.length} projects live</p>
+        </div>
+      </figure>
+      <div class="mt-6 flex flex-wrap items-center gap-3 max-[860px]:mt-4">
+        <a href={`mailto:${site.email}`} class={primary}>
+          <Icon name="envelope" />
+          Get in touch
+        </a>
+        <a href={site.resume} download="Daniel-Colorado-Resume.pdf" class={secondary}>
+          <Icon name="fileText" />
+          Download résumé
+        </a>
+      </div>
+      <a href="#work" class="mt-6 inline-flex items-center gap-2 font-mono text-sm text-muted hover:text-ink">
+        {shipping.cta}
+        <Icon name="arrowDown" />
+      </a>
+    </Stop>
+  </div>
+</div>
+
+<script>
+  import { mountScrollWorld } from '../../scripts/scroll-world.js';
+
+  interface StopConfig {
+    id: string;
+    label: string;
+    still: string;
+    stillMobile: string;
+    focusX: number;
+    scroll?: number;
+    accent: string;
+    accentColor: string;
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-world]');
+  if (root) {
+    const config = JSON.parse(root.dataset.config ?? '{}');
+    const stops: StopConfig[] = config.stops;
+    const copies = [...root.querySelectorAll<HTMLElement>('[data-stop-copy]')];
+
+    try {
+      mountScrollWorld(root, {
+        nav: false,
+        atmosphere: false,
+        stillZoom: false,
+        hint: 'Scroll',
+        diveScroll: config.stopScroll,
+        connScroll: config.connScroll,
+        crossfade: config.crossfade,
+        copyHold: config.copyHold,
+        smoothing: config.smoothing,
+        sections: stops.map((stop, i) => ({
+          id: stop.id,
+          label: stop.label,
+          still: stop.still,
+          stillMobile: stop.stillMobile,
+          focusX: stop.focusX,
+          scroll: stop.scroll,
+          accent: stop.accentColor,
+          copy: copies[i],
+        })),
+        connectors: config.connectors,
+        connectorsMobile: config.connectorsMobile,
+        // The header button follows the stop's accent (green at the testing stop).
+        onChange(i: number) {
+          if (stops[i].accent === 'green') document.documentElement.dataset.accent = 'green';
+          else delete document.documentElement.dataset.accent;
+        },
+      });
+      root.querySelector('[data-world-static]')?.remove();
+    } catch (error) {
+      // Show the server rendered stops again.
+      document.documentElement.classList.remove('js');
+      throw error;
+    }
+
+    // "Skip intro" jumps straight past the world and hides once it is behind you.
+    const skip = document.querySelector<HTMLAnchorElement>('[data-skip-intro]');
+    if (skip) {
+      skip.addEventListener('click', (event) => {
+        const target = document.querySelector<HTMLElement>(skip.hash);
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'instant' });
+        target.focus({ preventScroll: true });
+        history.pushState(null, '', skip.hash);
+      });
+      // The top quarter is left out, so the link also hides when only the last few pixels
+      // of the world are still under the header.
+      new IntersectionObserver(
+        ([entry]) => {
+          skip.hidden = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+        },
+        { rootMargin: '-25% 0px 0px 0px' },
+      ).observe(root);
+    }
+  }
+</script>
