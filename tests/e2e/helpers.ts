@@ -53,11 +53,16 @@ export const canPlayH264 = (page: Page) =>
   page.evaluate(() => document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"') !== '');
 
 /** Collects console errors and uncaught exceptions for the whole test. */
+/** Chromium logs this when a navigation starts before the previous page transition ends; it is not a page error. */
+const BENIGN = /^Transition was aborted because of invalid state/;
+
 export function watchErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() === 'error' && !BENIGN.test(message.text())) errors.push(message.text());
   });
-  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('pageerror', (error) => {
+    if (!BENIGN.test(error.message)) errors.push(error.message);
+  });
   return errors;
 }

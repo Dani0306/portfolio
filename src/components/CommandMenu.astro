@@ -1,0 +1,282 @@
+---
+/**
+ * ⌘K / Ctrl+K command menu: jump to a section or case study, copy the email,
+ * download the résumé, switch language. A native <dialog> (focus trap, Esc,
+ * focus return) holding an ARIA combobox: the input filters a listbox of
+ * options, arrows move the selection, Enter runs it.
+ */
+import { site } from '../data/site';
+import { htmlLang, langFromUrl, localize, switchPath, t } from '../i18n/ui';
+import { getProjects } from '../lib/projects';
+import Icon, { type IconName } from './Icon.astro';
+
+const lang = langFromUrl(Astro.url);
+const tr = t(lang).command;
+const home = localize(lang, '/');
+const other = lang === 'en' ? 'es' : 'en';
+const projects = await getProjects(lang);
+
+interface Item {
+  label: string;
+  icon: IconName;
+  href?: string;
+  action?: 'copy-email';
+  download?: string;
+  /** Hidden when this element is missing from the home page (the activity section can be left out). */
+  section?: string;
+  /** Extra words the filter matches. */
+  keywords?: string;
+  hint?: string;
+  hreflang?: string;
+}
+
+const section = (id: string, label: string, keywords = ''): Item => ({ label, icon: 'hash', href: `${home}#${id}`, section: id, keywords });
+
+const groups: { id: string; label: string; items: Item[] }[] = [
+  {
+    id: 'go',
+    label: tr.groups.go,
+    items: [
+      section('work', tr.sections.work, 'projects proyectos portfolio'),
+      section('about', tr.sections.about, 'bio'),
+      section('stack', tr.sections.stack, 'skills tech react next node'),
+      section('how-i-work', tr.sections.howIWork, 'process proceso claude'),
+      section('testing', tr.sections.testing, 'tests playwright vitest ci'),
+      section('shipping', tr.sections.shipping, 'deploy vercel'),
+      section('activity', tr.sections.activity, 'github contributions contribuciones'),
+      section('experience', tr.sections.experience, 'jobs trabajo education educación'),
+      section('contact', tr.sections.contact, 'email correo'),
+      section('hello', tr.sections.top, 'home inicio hero'),
+    ],
+  },
+  {
+    id: 'projects',
+    label: tr.groups.projects,
+    items: projects.map(({ slug, data }) => ({
+      label: tr.caseStudy(data.title),
+      icon: 'notebook',
+      href: localize(lang, `/work/${slug}/`),
+      keywords: data.stack.join(' '),
+    })),
+  },
+  {
+    id: 'actions',
+    label: tr.groups.actions,
+    items: [
+      { label: tr.copyEmail, icon: 'copy', action: 'copy-email', keywords: site.email, hint: site.email },
+      { label: tr.sendEmail, icon: 'envelope', href: `mailto:${site.email}`, keywords: 'mail contact contacto' },
+      { label: tr.downloadResume, icon: 'fileText', href: site.resume, download: 'Daniel-Colorado-Resume.pdf', keywords: 'cv resume pdf' },
+      {
+        label: tr.language,
+        icon: 'translate',
+        href: switchPath(Astro.url, other),
+        hreflang: htmlLang[other],
+        keywords: 'language idioma english español spanish inglés',
+      },
+    ],
+  },
+  {
+    id: 'links',
+    label: tr.groups.links,
+    items: [
+      { label: tr.github, icon: 'github', href: site.github, hint: site.githubUser },
+      { label: tr.linkedin, icon: 'linkedin', href: site.linkedin },
+      { label: tr.source, icon: 'arrowUpRight', href: site.repo, keywords: 'repo astro' },
+    ],
+  },
+];
+---
+
+<dialog
+  id="command-menu"
+  aria-label={tr.label}
+  data-email={site.email}
+  data-copied={tr.copied}
+  class="fixed inset-x-0 top-[12vh] mx-auto w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-2xl border border-ink/10 bg-canvas/95 p-0 text-ink shadow-2xl shadow-black/40 backdrop-blur-xl"
+>
+  <div class="flex items-center gap-3 border-b border-ink/10 px-4">
+    <Icon name="magnifyingGlass" class="size-4 text-muted" />
+    <input
+      type="text"
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="command-list"
+      aria-autocomplete="list"
+      aria-label={tr.label}
+      placeholder={tr.placeholder}
+      autocomplete="off"
+      spellcheck="false"
+      data-command-input
+      class="h-12 w-full bg-transparent text-base text-ink outline-none placeholder:text-muted"
+    />
+    <kbd class="rounded-md border border-ink/15 px-2 py-0.5 font-mono text-xs text-muted">Esc</kbd>
+  </div>
+
+  <div id="command-list" role="listbox" aria-label={tr.label} class="max-h-[min(60vh,26rem)] overflow-y-auto p-2" data-command-list>
+    {
+      groups.map((group) => (
+        <div role="group" aria-labelledby={`command-group-${group.id}`} data-command-group>
+          <div id={`command-group-${group.id}`} class="px-3 pt-3 pb-1 font-mono text-xs text-muted">
+            {group.label}
+          </div>
+          {group.items.map((item, i) => (
+            <div
+              role="option"
+              id={`command-${group.id}-${i}`}
+              aria-selected="false"
+              data-command-option
+              data-href={item.href}
+              data-action={item.action}
+              data-download={item.download}
+              data-section={item.section}
+              data-hreflang={item.hreflang}
+              data-label={item.label}
+              data-search={`${item.label} ${item.keywords ?? ''}`}
+              class="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink/90 transition-colors duration-200"
+            >
+              <Icon name={item.icon} class="command-icon size-4 text-muted transition-colors duration-200" />
+              <span class="min-w-0 truncate">{item.label}</span>
+              {item.hint && <span class="ml-auto hidden truncate font-mono text-xs text-muted sm:block">{item.hint}</span>}
+            </div>
+          ))}
+        </div>
+      ))
+    }
+    <p data-command-empty hidden class="px-3 py-8 text-center text-sm text-muted">{tr.empty}</p>
+  </div>
+
+  <div class="flex items-center justify-between gap-4 border-t border-ink/10 px-4 py-2 font-mono text-xs text-muted">
+    <span aria-hidden="true"><kbd>↑</kbd> <kbd>↓</kbd> {tr.hint} · <kbd>↵</kbd></span>
+    <span role="status" data-command-status class="text-accent"></span>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#command-menu');
+  if (dialog) {
+    const input = dialog.querySelector<HTMLInputElement>('[data-command-input]')!;
+    const list = dialog.querySelector<HTMLElement>('[data-command-list]')!;
+    const empty = dialog.querySelector<HTMLElement>('[data-command-empty]')!;
+    const status = dialog.querySelector<HTMLElement>('[data-command-status]')!;
+    const groups = [...dialog.querySelectorAll<HTMLElement>('[data-command-group]')];
+    const options = [...dialog.querySelectorAll<HTMLElement>('[data-command-option]')];
+    let visible: HTMLElement[] = [];
+    let selected = -1;
+
+    // Sections missing from this page's home (the activity graph can be left out) are dropped.
+    const home = document.querySelector('[data-world]') !== null;
+    if (home) {
+      for (const option of options) {
+        const id = option.dataset.section;
+        if (id && !document.getElementById(id)) option.remove();
+      }
+    }
+    const present = () => options.filter((option) => option.isConnected);
+
+    const normalize = (text: string) =>
+      text
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .toLowerCase();
+
+    function select(index: number) {
+      if (selected >= 0) visible[selected]?.setAttribute('aria-selected', 'false');
+      selected = visible.length ? (index + visible.length) % visible.length : -1;
+      const option = visible[selected];
+      if (option) {
+        option.setAttribute('aria-selected', 'true');
+        input.setAttribute('aria-activedescendant', option.id);
+        option.scrollIntoView({ block: 'nearest' });
+      } else {
+        input.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    function filter() {
+      const words = normalize(input.value).split(/\s+/).filter(Boolean);
+      // Options whose label matches come before ones that only match a keyword, within each group.
+      const byLabel: HTMLElement[] = [];
+      const byKeyword: HTMLElement[] = [];
+      for (const option of present()) {
+        const haystack = normalize(option.dataset.search ?? '');
+        const label = normalize(option.dataset.label ?? '');
+        const match = words.every((word) => haystack.includes(word));
+        option.hidden = !match;
+        option.setAttribute('aria-selected', 'false');
+        if (match) (words.every((word) => label.includes(word)) ? byLabel : byKeyword).push(option);
+      }
+      for (const option of [...byLabel, ...byKeyword]) option.parentElement?.append(option);
+      for (const group of groups) group.hidden = !group.querySelector('[data-command-option]:not([hidden])');
+      visible = [...dialog!.querySelectorAll<HTMLElement>('[data-command-option]:not([hidden])')];
+      empty.hidden = visible.length > 0;
+      selected = -1;
+      select(0);
+    }
+
+    function open() {
+      if (dialog!.open) return;
+      input.value = '';
+      status.textContent = '';
+      filter();
+      dialog!.showModal();
+      input.focus();
+    }
+
+    async function run(option: HTMLElement) {
+      const { href, action, download } = option.dataset;
+      if (action === 'copy-email') {
+        try {
+          await navigator.clipboard.writeText(dialog!.dataset.email ?? '');
+          status.textContent = dialog!.dataset.copied ?? '';
+          window.setTimeout(() => dialog!.close(), 700);
+        } catch {
+          window.location.href = `mailto:${dialog!.dataset.email}`;
+        }
+        return;
+      }
+      if (!href) return;
+      dialog!.close();
+      if (download) {
+        const link = Object.assign(document.createElement('a'), { href, download });
+        link.click();
+        return;
+      }
+      window.location.assign(href);
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        if (dialog.open) dialog.close();
+        else open();
+      }
+    });
+    document.querySelectorAll('[data-command-open]').forEach((button) => button.addEventListener('click', open));
+
+    input.addEventListener('input', filter);
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown') select(selected + 1);
+      else if (event.key === 'ArrowUp') select(selected - 1);
+      else if (event.key === 'Home' && event.ctrlKey) select(0);
+      else if (event.key === 'End' && event.ctrlKey) select(visible.length - 1);
+      else if (event.key === 'Enter' && visible[selected]) run(visible[selected]);
+      else return;
+      event.preventDefault();
+    });
+
+    list.addEventListener('click', (event) => {
+      const option = (event.target as Element).closest<HTMLElement>('[data-command-option]');
+      if (option) run(option);
+    });
+    list.addEventListener('pointermove', (event) => {
+      const option = (event.target as Element).closest<HTMLElement>('[data-command-option]');
+      const index = option ? visible.indexOf(option) : -1;
+      if (index >= 0 && index !== selected) select(index);
+    });
+
+    // A click on the backdrop (the dialog element itself, outside its content) closes it.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+</script>

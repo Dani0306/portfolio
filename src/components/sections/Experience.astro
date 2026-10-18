@@ -1,31 +1,49 @@
 ---
+import { langFromUrl, t } from '../../i18n/ui';
+
+const lang = langFromUrl(Astro.url);
+const tr = t(lang).experience;
+
 /** Most recent first. Facts from my CV. */
-const entries = [
-  {
-    when: 'October 2026 to present',
-    title: 'Back Office Agent',
-    place: 'Third Way Health',
-    detail: '',
-  },
-  {
-    when: '2022 to 2027, in progress',
-    title: 'Software Engineering',
-    place: 'Institución Universitaria de Envigado (IUE)',
-    detail: 'Focus on full stack web development with JavaScript and TypeScript.',
-  },
-  {
-    when: '1 yr 8 mo',
-    title: 'Customer Service Representative',
-    place: 'Zara, through Konecta Multienlace',
-    detail:
-      'Handled inbound and outbound calls and chats to resolve customer requests and order issues. Met monthly productivity, adherence and quality targets.',
-  },
-];
+const entries = {
+  en: [
+    { when: 'October 2026 to present', title: 'Back Office Agent', place: 'Third Way Health', detail: '' },
+    {
+      when: '2022 to 2027, in progress',
+      title: 'Software Engineering',
+      place: 'Institución Universitaria de Envigado (IUE)',
+      detail: 'Focus on full stack web development with JavaScript and TypeScript.',
+    },
+    {
+      when: '1 yr 8 mo',
+      title: 'Customer Service Representative',
+      place: 'Zara, through Konecta Multienlace',
+      detail:
+        'Handled inbound and outbound calls and chats to resolve customer requests and order issues. Met monthly productivity, adherence and quality targets.',
+    },
+  ],
+  es: [
+    { when: 'Octubre de 2026 a hoy', title: 'Agente de Back Office', place: 'Third Way Health', detail: '' },
+    {
+      when: '2022 a 2027, en curso',
+      title: 'Ingeniería de Software',
+      place: 'Institución Universitaria de Envigado (IUE)',
+      detail: 'Enfoque en desarrollo web full stack con JavaScript y TypeScript.',
+    },
+    {
+      when: '1 año y 8 meses',
+      title: 'Asesor de servicio al cliente',
+      place: 'Zara, a través de Konecta Multienlace',
+      detail:
+        'Atendí llamadas y chats entrantes y salientes para resolver solicitudes de clientes y problemas con pedidos. Cumplí las metas mensuales de productividad, adherencia y calidad.',
+    },
+  ],
+}[lang];
 ---
 
 <section id="experience" tabindex="-1" aria-labelledby="experience-title" class="scroll-mt-24 px-4 py-24 outline-none md:px-16">
   <p class="font-mono text-sm text-accent">~/experience</p>
-  <h2 id="experience-title" class="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Experience</h2>
+  <h2 id="experience-title" class="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">{tr.title}</h2>
   <ol class="mt-12 max-w-2xl space-y-12 border-l border-ink/10 pl-6">
     {
       entries.map((entry) => (

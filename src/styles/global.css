@@ -350,3 +350,246 @@
     transition: none;
   }
 }
+
+/* ---------- GitHub activity ----------
+   One square per day: weeks are columns, weekdays are rows. */
+.activity-graph {
+  --cell: 11px;
+  --gap: 3px;
+  display: grid;
+  gap: 8px;
+  width: max-content;
+}
+
+.activity-months,
+.activity-days {
+  display: grid;
+  grid-template-columns: repeat(var(--weeks), var(--cell));
+  column-gap: var(--gap);
+}
+
+.activity-months span {
+  white-space: nowrap;
+}
+
+.activity-days {
+  grid-template-rows: repeat(7, var(--cell));
+  row-gap: var(--gap);
+}
+
+.activity-day {
+  display: block;
+  width: var(--cell, 11px);
+  height: var(--cell, 11px);
+  border-radius: 2px;
+  background-color: rgb(236 232 223 / 0.06);
+}
+
+.activity-day[data-level="1"] {
+  background-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
+}
+
+.activity-day[data-level="2"] {
+  background-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
+}
+
+.activity-day[data-level="3"] {
+  background-color: color-mix(in oklab, var(--color-accent) 80%, transparent);
+}
+
+.activity-day[data-level="4"] {
+  background-color: var(--color-accent);
+}
+
+/* Wide screens: the year fills the width, one square per column. */
+@media (min-width: 1024px) {
+  .activity-graph {
+    --gap: 4px;
+    width: 100%;
+  }
+
+  .activity-months,
+  .activity-days {
+    grid-template-columns: repeat(var(--weeks), minmax(0, 1fr));
+  }
+
+  .activity-days {
+    grid-template-rows: none;
+  }
+
+  .activity-days .activity-day {
+    align-self: start;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+}
+
+/* ---------- Page transitions ----------
+   Cross document view transitions: pages cross fade, and a project's screenshot
+   morphs into its case study hero (the name is set on click, see Work.astro). */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 450ms;
+  animation-timing-function: var(--ease-fluid);
+}
+
+::view-transition-group(project-shot) {
+  animation-duration: 700ms;
+  animation-timing-function: var(--ease-fluid);
+}
+
+/* The header stays put while the page changes under it. */
+.site-header {
+  view-transition-name: site-header;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* ---------- Command menu ---------- */
+#command-menu {
+  opacity: 0;
+  translate: 0 -0.75rem;
+  scale: 0.98;
+  transition:
+    opacity 400ms var(--ease-fluid),
+    translate 400ms var(--ease-fluid),
+    scale 400ms var(--ease-fluid),
+    display 400ms allow-discrete,
+    overlay 400ms allow-discrete;
+}
+
+#command-menu[open] {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+@starting-style {
+  #command-menu[open] {
+    opacity: 0;
+    translate: 0 -0.75rem;
+    scale: 0.98;
+  }
+}
+
+#command-menu::backdrop {
+  background-color: rgb(14 15 18 / 0);
+  backdrop-filter: blur(0);
+  transition:
+    background-color 400ms var(--ease-fluid),
+    backdrop-filter 400ms var(--ease-fluid),
+    display 400ms allow-discrete,
+    overlay 400ms allow-discrete;
+}
+
+#command-menu[open]::backdrop {
+  background-color: rgb(14 15 18 / 0.6);
+  backdrop-filter: blur(6px);
+}
+
+@starting-style {
+  #command-menu[open]::backdrop {
+    background-color: rgb(14 15 18 / 0);
+    backdrop-filter: blur(0);
+  }
+}
+
+#command-menu [role="option"][aria-selected="true"] {
+  background-color: rgb(236 232 223 / 0.08);
+  color: var(--color-ink);
+}
+
+#command-menu [role="option"][aria-selected="true"] .command-icon {
+  color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #command-menu,
+  #command-menu::backdrop {
+    transition: none;
+  }
+}
+
+/* ---------- Case studies ---------- */
+.case-shot {
+  view-transition-name: project-shot;
+}
+
+.case-body > * + * {
+  margin-top: 1rem;
+}
+
+.case-body h2 {
+  margin-top: 4rem;
+  scroll-margin-top: 8rem;
+  font-size: var(--text-3xl);
+  line-height: var(--text-3xl--line-height);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.case-body h2:first-child {
+  margin-top: 0;
+}
+
+.case-body p,
+.case-body li {
+  font-size: var(--text-lg);
+  line-height: 1.75rem;
+  color: rgb(236 232 223 / 0.9);
+}
+
+.case-body strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.case-body ul {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.case-body ul > li {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.case-body ul > li::before {
+  content: "";
+  position: absolute;
+  top: 0.75rem;
+  left: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--color-accent);
+}
+
+.case-body :not(pre) > code {
+  border-radius: 0.25rem;
+  background-color: rgb(236 232 223 / 0.08);
+  padding: 0.125rem 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--color-ink);
+}
+
+.case-body pre {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+  border: 1px solid rgb(236 232 223 / 0.1);
+  background-color: rgb(0 0 0 / 0.3) !important;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.5rem;
+}

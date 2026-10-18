@@ -18,10 +18,11 @@ test.describe('selected work', () => {
     }
   });
 
-  test('every project links to its live site and its code', async ({ page }) => {
+  test('every project links to its case study, its live site and its code', async ({ page }) => {
     await page.goto('/#work');
     for (const name of ['Classly', 'Yield', 'Forest Media Récords', 'Grupo Autos Colorado']) {
-      await expect(page.getByRole('link', { name: `Live site: ${name}` })).toHaveAttribute('href', /^https:\/\/.+\.vercel\.app$/);
+      await expect(page.getByRole('link', { name: `Case study: ${name}` })).toHaveAttribute('href', /^\/work\/[a-z-]+\/$/);
+      await expect(page.getByRole('link', { name: `Live site: ${name}` })).toHaveAttribute('href', /^https:\/\/[a-z0-9.-]+$/);
       await expect(page.getByRole('link', { name: `Code: ${name}` })).toHaveAttribute('href', /^https:\/\/github\.com\/Dani0306\//);
     }
   });

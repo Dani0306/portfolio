@@ -1,0 +1,114 @@
+---
+/**
+ * My GitHub contribution graph for the last year, read at build time
+ * (src/lib/contributions.ts). Left out entirely when GitHub cannot be reached,
+ * so it never shows made up or empty numbers.
+ */
+import { site } from '../../data/site';
+import { langFromUrl, t } from '../../i18n/ui';
+import { getContributions } from '../../lib/contributions';
+import Icon from '../Icon.astro';
+
+const tr = t(langFromUrl(Astro.url)).activity;
+const contributions = await getContributions(site.githubUser);
+
+const RECENT_DAYS = 56;
+const days = contributions?.days ?? [];
+const total = contributions?.total ?? 0;
+const recent = days.slice(-RECENT_DAYS).reduce((sum, day) => sum + day.count, 0);
+const active = days.filter((day) => day.count > 0).length;
+
+// Columns are weeks starting on Sunday, rows are weekdays, like on GitHub.
+const weekday = (date: string) => new Date(`${date}T00:00:00Z`).getUTCDay();
+const offset = days.length ? weekday(days[0].date) : 0;
+const cells = days.map((day, i) => ({ ...day, column: Math.floor((i + offset) / 7) + 1, row: weekday(day.date) + 1 }));
+const weeks = cells.at(-1)?.column ?? 0;
+
+// A month label over the first week that starts in that month, skipping ones too close to the edges.
+const months: { column: number; label: string }[] = [];
+for (const cell of cells) {
+  const month = Number(cell.date.slice(5, 7)) - 1;
+  if (cell.row !== 1 && cell.column !== 1) continue;
+  if (months.at(-1)?.label === tr.months[month]) continue;
+  if (Number(cell.date.slice(8, 10)) > 7 && cell.column !== 1) continue;
+  months.push({ column: cell.column, label: tr.months[month] });
+}
+if (months.length > 1 && months[1].column - months[0].column < 3) months.shift();
+
+const longDate = new Intl.DateTimeFormat(tr.dateLocale, { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const format = (n: number) => n.toLocaleString(tr.dateLocale);
+---
+
+{
+  contributions && (
+    <section id="activity" tabindex="-1" aria-labelledby="activity-title" class="scroll-mt-24 px-4 py-24 outline-none md:px-16">
+      <div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+        <div>
+          <p class="font-mono text-sm text-accent">~/activity</p>
+          <h2 id="activity-title" class="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
+            {tr.title}
+          </h2>
+          <p class="mt-4 max-w-md text-lg text-ink/90">{tr.intro}</p>
+        </div>
+
+        <dl class="grid grid-cols-3 gap-6 self-end border-t border-ink/10 pt-6">
+          <div>
+            <dt class="sr-only">{tr.totalLabel}</dt>
+            <dd class="font-mono text-3xl text-ink md:text-4xl">{format(total)}</dd>
+            <dd class="mt-2 text-sm text-muted" aria-hidden="true">{tr.totalLabel}</dd>
+          </div>
+          <div>
+            <dt class="sr-only">{tr.recentLabel}</dt>
+            <dd class="font-mono text-3xl text-accent md:text-4xl">{format(recent)}</dd>
+            <dd class="mt-2 text-sm text-muted" aria-hidden="true">{tr.recentLabel}</dd>
+          </div>
+          <div>
+            <dt class="sr-only">{tr.activeLabel}</dt>
+            <dd class="font-mono text-3xl text-ink md:text-4xl">{format(active)}</dd>
+            <dd class="mt-2 text-sm text-muted" aria-hidden="true">{tr.activeLabel}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <figure class="mt-12">
+        <div data-activity-scroll class="activity-scroll overflow-x-auto pb-2" tabindex="0" aria-label={tr.scrollLabel}>
+          <div class="activity-graph" style={`--weeks: ${weeks}`}>
+            <div class="activity-months font-mono text-xs text-muted" aria-hidden="true">
+              {months.map((month) => <span style={`grid-column: ${month.column}`}>{month.label}</span>)}
+            </div>
+            <div class="activity-days" role="img" aria-label={tr.graph(total)}>
+              {cells.map((cell) => (
+                <span
+                  class="activity-day"
+                  data-level={cell.level}
+                  style={`grid-column: ${cell.column}; grid-row: ${cell.row}`}
+                  title={tr.day(cell.count, longDate.format(new Date(`${cell.date}T00:00:00Z`)))}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <figcaption class="mt-4 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-muted">
+          <a href={site.github} class="inline-flex items-center gap-2 transition-colors duration-700 ease-fluid hover:text-ink">
+            <Icon name="github" />
+            {tr.profile}
+            <Icon name="arrowUpRight" />
+          </a>
+          <span class="flex items-center gap-2" aria-hidden="true">
+            {tr.less}
+            {[0, 1, 2, 3, 4].map((level) => (
+              <span class="activity-day" data-level={level} />
+            ))}
+            {tr.more}
+          </span>
+        </figcaption>
+      </figure>
+    </section>
+  )
+}
+
+<script>
+  // Phones see the newest weeks first: start the sideways scroll at the right end.
+  const scroller = document.querySelector<HTMLElement>('[data-activity-scroll]');
+  if (scroller) scroller.scrollLeft = scroller.scrollWidth;
+</script>

@@ -1,15 +1,17 @@
 ---
 import { site } from '../data/site';
+import { langFromUrl, t } from '../i18n/ui';
 
+const tr = t(langFromUrl(Astro.url)).footer;
 const year = new Date().getFullYear();
 ---
 
 <footer class="border-t border-ink/10 px-4 py-12 md:px-16">
   <div class="flex flex-col gap-3 text-sm text-muted md:flex-row md:items-center md:justify-between">
     <p>
-      © {year} {site.name} · Built with Astro ·{' '}
-      <a href={site.repo} class="text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-accent">Source on GitHub</a>
+      © {year} {site.name} · {tr.builtWith} ·{' '}
+      <a href={site.repo} class="text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-accent">{tr.source}</a>
     </p>
-    <p>Privacy: this site sets no cookies and runs no analytics.</p>
+    <p>{tr.privacy}</p>
   </div>
 </footer>

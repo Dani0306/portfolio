@@ -4,7 +4,8 @@ import { z } from 'astro/zod';
 
 /**
  * Selected work. Facts only: each entry comes from the project's GitHub repo
- * (description, live URL, package.json) and its live site.
+ * (description, live URL, package.json, CLAUDE.md and decision notes) and its
+ * live site. The Markdown body is the English case study.
  */
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
@@ -22,4 +23,14 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { projects };
+/** Spanish copy for each project, matched by filename; the body is the Spanish case study. */
+const projectsEs = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/projects-es' }),
+  schema: z.object({
+    summary: z.string(),
+    role: z.string(),
+    outcome: z.string(),
+  }),
+});
+
+export const collections = { projects, projectsEs };

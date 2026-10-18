@@ -1,0 +1,199 @@
+---
+/**
+ * One project's case study, in the page's language. Facts come from the
+ * project's repo (src/content/projects*). The hero screenshot shares its view
+ * transition name with the card that opened it, so it morphs into place.
+ */
+import { render } from 'astro:content';
+
+import { langFromUrl, localize, t } from '../i18n/ui';
+import { lastPush } from '../lib/github';
+import { getProjects } from '../lib/projects';
+import Layout from '../layouts/Layout.astro';
+import Footer from './Footer.astro';
+import Header from './Header.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  slug: string;
+}
+
+const lang = langFromUrl(Astro.url);
+const tr = t(lang);
+const projects = await getProjects(lang);
+const index = projects.findIndex((project) => project.slug === Astro.props.slug);
+const { slug, data, entry } = projects[index];
+const next = projects[(index + 1) % projects.length];
+const { Content, headings } = await render(entry);
+const updated = await lastPush(data.repo);
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const host = new URL(data.live).host;
+const srcset = (image: string) => `${image.replace('.webp', '-800.webp')} 800w, ${image} 1600w`;
+const sections = headings.filter((heading) => heading.depth === 2);
+
+const primary =
+  'inline-flex items-center gap-2 rounded-full bg-accent px-3 py-2 text-base font-semibold text-canvas transition duration-700 ease-fluid hover:brightness-110 active:scale-[0.98]';
+const secondary =
+  'inline-flex items-center gap-2 rounded-full border border-ink/20 px-3 py-2 text-base font-semibold text-ink transition duration-700 ease-fluid hover:border-ink/40 hover:bg-ink/5 active:scale-[0.98]';
+const term = 'font-mono text-xs text-muted';
+---
+
+<Layout
+  title={`${data.title}, ${tr.work.caseStudy.toLowerCase()} | Daniel Colorado`}
+  description={data.summary}
+  image={`/og/work/${slug}${lang === 'es' ? '-es' : ''}.png`}
+  type="article"
+>
+  <Header />
+  <main id="main" tabindex="-1" class="outline-none">
+    <article aria-labelledby="case-title" class="px-4 pt-32 pb-24 md:px-16">
+      <a
+        href={`${localize(lang, '/')}#work`}
+        class="inline-flex items-center gap-2 font-mono text-sm text-muted transition-colors duration-700 ease-fluid hover:text-ink"
+      >
+        <Icon name="arrowLeft" />
+        {tr.caseStudy.back}
+      </a>
+
+      <header class="mt-12 grid gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
+        <div>
+          <p class="flex items-center gap-2 font-mono text-sm text-muted">
+            <span class="size-2 bg-accent" aria-hidden="true"></span>
+            {pad(index + 1)} / {pad(projects.length)} · {tr.work.caseStudy}
+          </p>
+          <h1 id="case-title" class="mt-4 text-5xl font-semibold tracking-tight md:text-6xl">{data.title}</h1>
+          <p class="mt-6 max-w-2xl text-xl text-ink/90">{data.summary}</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href={data.live} class={primary}>
+              {tr.work.liveSite}
+              <Icon name="arrowUpRight" />
+            </a>
+            <a href={data.repo} class={secondary}>
+              <Icon name="github" />
+              {tr.work.code}
+            </a>
+          </div>
+        </div>
+
+        <dl class="grid content-end gap-6 border-t border-ink/10 pt-6 text-base text-ink/90">
+          <div>
+            <dt class={term}>{tr.caseStudy.role}</dt>
+            <dd class="mt-2">{data.role}</dd>
+          </div>
+          <div>
+            <dt class={term}>{tr.caseStudy.outcome}</dt>
+            <dd class="mt-2">{data.outcome}</dd>
+          </div>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <dt class={term}>{tr.caseStudy.stack}</dt>
+              <dd class="mt-2 font-mono text-sm">{data.stack.join(' · ')}</dd>
+            </div>
+            {
+              updated && (
+                <div>
+                  <dt class={term}>{tr.caseStudy.lastUpdated}</dt>
+                  <dd class="mt-2 font-mono text-sm">
+                    <time datetime={updated}>{updated}</time>
+                  </dd>
+                </div>
+              )
+            }
+          </div>
+        </dl>
+      </header>
+
+      <figure class="mt-16 border border-ink/10 bg-canvas">
+        <figcaption class="flex items-center justify-between gap-4 border-b border-ink/10 px-3 py-2 font-mono text-xs text-muted">
+          <span>{host}</span>
+          <a href={data.live} class="transition-colors duration-700 ease-fluid hover:text-ink" aria-label={tr.work.liveSiteName(data.title)}>
+            <Icon name="arrowUpRight" />
+          </a>
+        </figcaption>
+        <img
+          src={data.image}
+          srcset={srcset(data.image)}
+          sizes="(min-width: 768px) calc(100vw - 8rem), 100vw"
+          alt={tr.caseStudy.screenshot(data.title)}
+          width="1600"
+          height="900"
+          fetchpriority="high"
+          decoding="async"
+          class="case-shot aspect-video w-full object-cover"
+        />
+      </figure>
+
+      <div class="mt-24 grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
+        <nav aria-labelledby="case-toc" class="hidden lg:block">
+          <div class="sticky top-32">
+            <p id="case-toc" class="font-mono text-xs text-muted">{data.title}</p>
+            <ol class="mt-4 space-y-2 border-l border-ink/10">
+              {
+                sections.map((heading) => (
+                  <li>
+                    <a
+                      href={`#${heading.slug}`}
+                      data-toc-link
+                      class="-ml-px block border-l border-transparent py-1 pl-4 text-sm text-muted transition-colors duration-700 ease-fluid hover:text-ink aria-[current=true]:border-accent aria-[current=true]:text-ink"
+                    >
+                      {heading.text}
+                    </a>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </nav>
+
+        <div class="case-body min-w-0 max-w-2xl">
+          <Content />
+        </div>
+      </div>
+
+      <a
+        href={localize(lang, `/work/${next.slug}/`)}
+        class="group mt-24 grid gap-6 border-t border-ink/10 pt-12 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-16"
+      >
+        <span>
+          <span class="font-mono text-xs text-muted">{tr.caseStudy.next}</span>
+          <span class="mt-3 flex items-center gap-4 text-4xl font-semibold tracking-tight md:text-5xl">
+            {next.data.title}
+            <Icon name="arrowRight" class="size-8 text-muted transition duration-700 ease-fluid group-hover:translate-x-2 group-hover:text-accent" />
+          </span>
+          <span class="mt-4 block max-w-md text-base text-ink/90">{next.data.summary}</span>
+        </span>
+        <span class="block overflow-hidden border border-ink/10">
+          <img
+            src={next.data.image.replace('.webp', '-800.webp')}
+            alt=""
+            width="800"
+            height="450"
+            loading="lazy"
+            decoding="async"
+            class="aspect-video w-full object-cover transition duration-700 ease-fluid group-hover:scale-[1.03]"
+          />
+        </span>
+      </a>
+    </article>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  // Highlight the table of contents entry for the section being read.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+  const targets = links.map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1)))).filter(Boolean) as HTMLElement[];
+  if (targets.length) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          links.forEach((link) => link.setAttribute('aria-current', String(link.hash.slice(1) === entry.target.id)));
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' },
+    );
+    targets.forEach((target) => observer.observe(target));
+  }
+</script>

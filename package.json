@@ -15,7 +15,8 @@
     "test:e2e": "playwright test",
     "contrast": "node scripts/check-contrast.mjs",
     "videos": "node scripts/optimize-videos.mjs",
-    "resume": "node scripts/build-resume.mjs"
+    "resume": "node scripts/build-resume.mjs",
+    "og": "node scripts/build-og.mjs"
   },
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",

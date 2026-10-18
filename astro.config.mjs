@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+  // Absolute URLs for share cards, canonical links and language alternates.
+  site: 'https://portfolio-rosy-ten-85.vercel.app',
   // Fonts come from Google Fonts at build time and are served from this site, subset to Latin.
   fonts: [
     {
@@ -26,6 +28,10 @@ export default defineConfig({
       fallbacks: ['ui-monospace', 'monospace'],
     },
   ],
+  markdown: {
+    // Warm dark theme for the code in case studies, close to the site's amber.
+    shikiConfig: { theme: 'vesper' },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

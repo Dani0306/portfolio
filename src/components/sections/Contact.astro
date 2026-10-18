@@ -3,16 +3,19 @@
  * Contact: the heading on the left, a sheet of ways to reach me on the right.
  * One row per channel, email first; every row is one clear action.
  */
-import { site } from '../../data/site';
+import { site, siteCopy } from '../../data/site';
+import { langFromUrl, t } from '../../i18n/ui';
 import CopyEmailButton from '../CopyEmailButton.astro';
 import Icon from '../Icon.astro';
 
+const lang = langFromUrl(Astro.url);
+const tr = t(lang);
 const handle = (url: string) => new URL(url).pathname.replace(/^\/|\/$/g, '');
 
 const links = [
   { label: 'LinkedIn', value: handle(site.linkedin), href: site.linkedin, icon: 'arrowUpRight' as const },
   { label: 'GitHub', value: handle(site.github), href: site.github, icon: 'arrowUpRight' as const },
-  { label: 'Résumé', value: 'PDF, one page', href: site.resume, icon: 'arrowDown' as const, download: 'Daniel-Colorado-Resume.pdf' },
+  { label: tr.contact.resume, value: tr.contact.resumeValue, href: site.resume, icon: 'arrowDown' as const, download: 'Daniel-Colorado-Resume.pdf' },
 ];
 
 // Phones: the label sits above its value. Wider screens: label, value and action in three columns.
@@ -26,14 +29,22 @@ const value = 'min-w-0 text-base text-ink underline decoration-ink/0 underline-o
   <div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
     <div>
       <p class="font-mono text-sm text-accent">~/contact</p>
-      <h2 id="contact-title" class="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Get in touch</h2>
-      <p class="mt-4 max-w-md text-lg text-ink/90">The fastest way to reach me is email.</p>
+      <h2 id="contact-title" class="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">{tr.contact.title}</h2>
+      <p class="mt-4 max-w-md text-lg text-ink/90">{tr.contact.body}</p>
+      <p class="mt-3 text-base text-muted">
+        <span
+          data-local-time
+          data-time-zone={site.timeZone}
+          data-locale={tr.activity.dateLocale}
+          data-template={tr.localTimeSentence('{time}')}>{site.location} · {siteCopy[lang].timeZoneNote}</span
+        >
+      </p>
     </div>
 
-    <ul class="border-t border-ink/10 lg:mt-2" aria-label="Ways to reach me">
+    <ul class="border-t border-ink/10 lg:mt-2" aria-label={tr.contact.list}>
       <li class={row}>
         <div class={pair}>
-          <span class={label}>Email</span>
+          <span class={label}>{tr.contact.email}</span>
           <a href={`mailto:${site.email}`} class:list={[value, 'hover:decoration-accent [overflow-wrap:anywhere]']}>{site.email}</a>
         </div>
         <CopyEmailButton compact />

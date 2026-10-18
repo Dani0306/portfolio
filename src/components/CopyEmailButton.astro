@@ -1,5 +1,6 @@
 ---
 import { site } from '../data/site';
+import { langFromUrl, t } from '../i18n/ui';
 import Icon from './Icon.astro';
 
 interface Props {
@@ -9,14 +10,18 @@ interface Props {
 }
 
 const { class: className, compact = false } = Astro.props;
+const tr = t(langFromUrl(Astro.url));
 ---
 
 <!-- Hidden until src/scripts/copy-email.ts runs; the mailto link covers the no-JavaScript case. -->
 <button
   type="button"
   data-copy-email={site.email}
+  data-copied={tr.copied}
+  data-failed={tr.copyFailed}
+  data-failed-long={tr.copyFailedLong}
   hidden
-  aria-label={compact ? 'Copy email address' : undefined}
+  aria-label={compact ? tr.copyEmailName : undefined}
   class:list={[
     'inline-flex items-center gap-2 rounded-full border border-ink/20 font-semibold text-ink transition-colors duration-700 ease-fluid hover:border-ink/40 hover:bg-ink/5 active:scale-[0.98]',
     compact ? 'px-3 py-1 text-sm' : 'px-3 py-2 text-base',
@@ -24,6 +29,6 @@ const { class: className, compact = false } = Astro.props;
   ]}
 >
   <Icon name="copy" />
-  <span data-label>{compact ? 'Copy' : 'Copy email'}</span>
+  <span data-label>{compact ? tr.copy : tr.copyEmail}</span>
   <span role="status" class="sr-only"></span>
 </button>

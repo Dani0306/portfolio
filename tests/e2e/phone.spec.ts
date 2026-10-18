@@ -30,3 +30,18 @@ test('selected work shows stacked cards that fade in', async ({ page }) => {
   await expect(first).toHaveClass(/is-in/);
   await expect(first.locator('.work-inline img')).toBeVisible();
 });
+
+test('case studies, the Spanish home and the 404 fit the screen', async ({ page }) => {
+  for (const path of ['/work/forest-media-records/', '/es/work/classly/', '/es/', '/missing']) {
+    await page.goto(path);
+    // The page clips sideways overflow, so also check that nothing is laid out past the right edge.
+    const overflow = await page.evaluate(() =>
+      [...document.querySelectorAll('main *')]
+        .filter((el) => !el.closest('pre, .activity-scroll, .sw-root'))
+        .filter((el) => el.getBoundingClientRect().right > window.innerWidth + 1)
+        .map((el) => el.tagName.toLowerCase() + (el.className ? `.${String(el.className).split(' ')[0]}` : '')),
+    );
+    expect(overflow, path).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), path).toBe(true);
+  }
+});

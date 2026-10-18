@@ -1,0 +1,23 @@
+---
+/** The one page site, shared by / (English) and /es/ (Spanish); components read the language from the URL. */
+import Footer from './Footer.astro';
+import Header from './Header.astro';
+import Activity from './sections/Activity.astro';
+import Contact from './sections/Contact.astro';
+import Experience from './sections/Experience.astro';
+import Work from './sections/Work.astro';
+import ScrollWorld from './world/ScrollWorld.astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <Header />
+  <main id="main" tabindex="-1" class="outline-none">
+    <ScrollWorld />
+    <Work />
+    <Activity />
+    <Experience />
+    <Contact />
+  </main>
+  <Footer />
+</Layout>

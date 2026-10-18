@@ -13,6 +13,8 @@ Personal site built with Astro and Tailwind CSS. The home page is a scroll world
 | `npm test` | Unit tests for the scroll engine (Vitest) |
 | `npm run test:e2e` | Browser tests (Playwright: desktop Chromium, desktop WebKit, phone) against the production build |
 | `npm run contrast` | WCAG AA check of the text over every stop's still |
+| `npm run og` | Rebuilds the share cards in `public/og/` from the site copy (run after changing a title, summary or the motto) |
+| `npm run resume` | Rebuilds `public/resume.pdf` |
 | `npm run videos` | Re-encodes the clip masters into the web versions in `public/journey/web/` (needs ffmpeg) |
 
 CI (`.github/workflows/ci.yml`) runs the type check, unit tests, contrast check, build and browser tests on every push and pull request.
