@@ -37,6 +37,7 @@ export const siteCopy = {
 
 export const nav = [
   { key: 'work', hash: '#work' },
+  { key: 'ai', hash: '#ai' },
   { key: 'about', hash: '#about' },
   { key: 'experience', hash: '#experience' },
   { key: 'contact', hash: '#contact' },

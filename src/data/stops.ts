@@ -5,23 +5,6 @@ import type { Lang } from '../i18n/ui';
  * src/config/world.ts). Built only from my CV and my GitHub repos.
  */
 
-/** Copied verbatim from the repo; `from` is the first line number in the file. */
-const snippet = {
-  project: 'Classly',
-  path: 'actions/classes/createClass.ts',
-  url: 'https://github.com/Dani0306/Classly/blob/main/actions/classes/createClass.ts#L7-L30',
-  from: 14,
-  code: [
-    'if (!user) throw new Error("Unauthorized");',
-    '',
-    'const { data, error } = await supabase',
-    '  .from("classes")',
-    '  .insert({ ...newClass, user_id: user.id })',
-    '  .select()',
-    '  .single();',
-  ],
-};
-
 const testsUrl = 'https://github.com/Dani0306/portfolio/tree/main/tests';
 
 const en = {
@@ -57,23 +40,14 @@ const en = {
   },
 
   howIWork: {
-    title: 'How I work',
-    body: 'Small steps, each one checked before the next. Claude Code does a lot of the typing; I decide what gets built and review every change.',
+    title: 'I build with AI',
+    body: 'I direct Claude Code like a team: it does a lot of the typing, and I decide what gets built and review every change.',
     steps: [
-      {
-        title: 'Write the context first',
-        body: 'Each project has a CLAUDE.md that describes the product, the schema and the data flow, so every session starts knowing the app.',
-      },
-      {
-        title: 'Build one feature at a time',
-        body: 'One server action per job, with the database reachable through an MCP server, so changes stay small and easy to review.',
-      },
-      {
-        title: 'Check it before it ships',
-        body: 'Strict TypeScript, ESLint and a production build on every change, then a deploy on Vercel.',
-      },
+      { title: 'Write the context', body: 'A CLAUDE.md per project: the product, the schema, the data flow and the rules.' },
+      { title: 'Give it real tools', body: 'MCP servers, skills and hooks, so it works with real data and checks its own work.' },
+      { title: 'Review before it ships', body: 'Strict types, tests and a production build on every change.' },
     ],
-    snippet,
+    cta: 'See how I build with AI',
   },
 
   testing: {
@@ -128,23 +102,14 @@ const es: typeof en = {
   },
 
   howIWork: {
-    title: 'Cómo trabajo',
-    body: 'Pasos pequeños, cada uno revisado antes del siguiente. Claude Code escribe buena parte del código; yo decido qué se construye y reviso cada cambio.',
+    title: 'Construyo con IA',
+    body: 'Dirijo a Claude Code como a un equipo: escribe buena parte del código, y yo decido qué se construye y reviso cada cambio.',
     steps: [
-      {
-        title: 'Primero, el contexto',
-        body: 'Cada proyecto tiene un CLAUDE.md que describe el producto, el esquema y el flujo de datos, así cada sesión empieza conociendo la aplicación.',
-      },
-      {
-        title: 'Una funcionalidad a la vez',
-        body: 'Una server action por tarea, con la base de datos accesible a través de un servidor MCP, para que los cambios sean pequeños y fáciles de revisar.',
-      },
-      {
-        title: 'Revisarlo antes de publicarlo',
-        body: 'TypeScript estricto, ESLint y un build de producción en cada cambio, y luego el despliegue en Vercel.',
-      },
+      { title: 'Escribir el contexto', body: 'Un CLAUDE.md por proyecto: el producto, el esquema, el flujo de datos y las reglas.' },
+      { title: 'Darle herramientas reales', body: 'Servidores MCP, skills y hooks, para que trabaje con datos reales y revise su propio trabajo.' },
+      { title: 'Revisar antes de publicar', body: 'Tipos estrictos, pruebas y un build de producción en cada cambio.' },
     ],
-    snippet,
+    cta: 'Ver cómo construyo con IA',
   },
 
   testing: {

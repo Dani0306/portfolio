@@ -131,19 +131,10 @@ const secondary =
           ))
         }
       </ol>
-      <figure class="snippet mt-6 border border-ink/10 bg-canvas/60 max-[860px]:mt-4">
-        <figcaption class="flex items-center justify-between gap-3 border-b border-ink/10 px-3 py-2 font-mono text-xs text-muted">
-          <span class="truncate">{howIWork.snippet.project} · {howIWork.snippet.path}</span>
-          <a href={howIWork.snippet.url} class="shrink-0 text-ink hover:text-accent" aria-label={tr.viewFileOnGitHub(howIWork.snippet.path)}>
-            {tr.viewOnGitHub}
-          </a>
-        </figcaption>
-        <pre class="overflow-x-auto px-3 py-3 font-mono text-xs leading-5"><code>{
-          howIWork.snippet.code.map((line, i) => (
-            <span class="block"><span class="mr-4 inline-block w-5 text-right text-muted select-none" aria-hidden="true">{howIWork.snippet.from + i}</span><span class="text-ink">{line}</span></span>
-          ))
-        }</code></pre>
-      </figure>
+      <a href="#ai" class:list={[secondary, 'mt-6 max-[860px]:mt-4']}>
+        {howIWork.cta}
+        <Icon name="arrowDown" />
+      </a>
     </Stop>
 
     <Stop index={4}>

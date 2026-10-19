@@ -44,7 +44,7 @@ export const world = {
     { id: 'hello', label: 'Hello', file: 'hello.ts', ...still(0, 'hello'), focusX: 64, scroll: 1.4, accent: 'amber' },
     { id: 'about', label: 'About', file: 'README.md', ...still(1, 'about'), focusX: 60, accent: 'amber' },
     { id: 'stack', label: 'Stack', file: 'package.json', ...still(2, 'stack'), focusX: 77, accent: 'amber' },
-    { id: 'how-i-work', label: 'How I work', file: 'app.tsx', ...still(3, 'work'), focusX: 72, accent: 'amber' },
+    { id: 'how-i-work', label: 'With AI', file: 'CLAUDE.md', ...still(3, 'work'), focusX: 72, accent: 'amber' },
     { id: 'testing', label: 'Testing', file: 'app.test.ts', ...still(4, 'tests'), focusX: 70, accent: 'green' },
     { id: 'shipping', label: 'Shipping', file: 'deploy.log', ...still(5, 'ship'), focusX: 73, scroll: 1.5, accent: 'amber' },
   ] satisfies WorldStop[] as WorldStop[],

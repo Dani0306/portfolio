@@ -1,0 +1,285 @@
+---
+/**
+ * How I build with AI. The workbench: three jobs on the left switch the file
+ * open on the right, a verbatim excerpt from one of my repos with my review
+ * comments pinned to its lines. Then the toolkit, the lab (projects not
+ * shipped yet, labeled as such) and a closing call to action.
+ * Without JavaScript the three files stack, each under its job.
+ */
+import { ai } from '../../data/ai';
+import { site } from '../../data/site';
+import { langFromUrl, t } from '../../i18n/ui';
+import CopyEmailButton from '../CopyEmailButton.astro';
+import Icon from '../Icon.astro';
+
+const lang = langFromUrl(Astro.url);
+const tr = t(lang);
+const copy = ai[lang];
+
+const basename = (path: string) => path.split('/').pop() ?? path;
+const dirname = (path: string) => path.split('/').slice(0, -1).join('/');
+
+const primary =
+  'inline-flex items-center gap-2 rounded-full bg-accent px-3 py-2 text-base font-semibold text-canvas transition duration-700 ease-fluid hover:brightness-110 active:scale-[0.98]';
+---
+
+<section id="ai" tabindex="-1" aria-labelledby="ai-title" class="scroll-mt-24 px-4 py-24 outline-none md:px-16">
+  <div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+    <div>
+      <h2 id="ai-title" class="text-4xl font-semibold tracking-tight md:text-5xl">{copy.title}</h2>
+      <p class="mt-6 max-w-xl text-lg text-ink/90">{copy.lead}</p>
+
+      <div role="tablist" aria-label={copy.jobsLabel} aria-orientation="vertical" class="ai-tabs mt-10 border-t border-ink/10" data-ai-tabs>
+        {
+          copy.jobs.map((job, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`ai-tab-${job.id}`}
+              aria-controls={`ai-panel-${job.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              data-ai-tab={job.id}
+              class="ai-tab group block w-full border-b border-ink/10 py-5 text-left"
+            >
+              <span class="flex items-center gap-3 text-xl font-semibold text-muted transition-colors duration-700 ease-fluid group-hover:text-ink group-aria-selected:text-ink">
+                <span class="ai-tab-marker size-2 bg-accent" aria-hidden="true" />
+                {job.label}
+              </span>
+              <span class="ai-tab-summary grid">
+                <span class="min-h-0 overflow-hidden">
+                  <span class="block pt-3 pl-5 text-base text-ink/90">{job.summary}</span>
+                </span>
+              </span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="ai-bench" data-ai-bench>
+      {
+        copy.jobs.map((job, i) => {
+          const commentFor = (n: number) => job.comments.find((comment) => comment.line === n);
+          return (
+            <div
+              role="tabpanel"
+              id={`ai-panel-${job.id}`}
+              aria-labelledby={`ai-tab-${job.id}`}
+              data-ai-panel={job.id}
+              class:list={['ai-panel', i === 0 && 'is-active']}
+            >
+              <div class="ai-panel-label mb-6">
+                <p class="text-xl font-semibold">{job.label}</p>
+                <p class="mt-2 max-w-xl text-base text-ink/90">{job.summary}</p>
+              </div>
+              <figure class="border border-ink/10 bg-canvas">
+                <figcaption class="flex items-stretch justify-between gap-3 border-b border-ink/10 font-mono text-xs text-muted">
+                  <span class="flex min-w-0 items-stretch">
+                    <span class="flex shrink-0 items-center gap-2 bg-ink/10 px-3 py-2 text-ink">
+                      <span class="size-2 bg-accent" aria-hidden="true" />
+                      {basename(job.file.path)}
+                    </span>
+                    <span class="flex min-w-0 items-center px-3">
+                      <span class="truncate">
+                        {job.file.project}
+                        {dirname(job.file.path) && ` · ${dirname(job.file.path)}`}
+                      </span>
+                    </span>
+                  </span>
+                  <a
+                    href={job.file.url}
+                    aria-label={copy.openFile(`${job.file.project} ${job.file.path}`)}
+                    class="flex shrink-0 items-center gap-2 px-3 text-muted transition-colors duration-700 ease-fluid hover:text-ink"
+                  >
+                    <Icon name="github" />
+                    <span class="hidden sm:inline">GitHub</span>
+                  </a>
+                </figcaption>
+
+                <div class:list={['ai-code py-3 font-mono text-xs leading-6', !job.file.wrap && 'overflow-x-auto']}>
+                  {job.file.runs.map((run, r) => (
+                    <>
+                      {r > 0 && (
+                        <div class="ai-gap my-2 grid grid-cols-[3.5rem_minmax(0,1fr)] items-center" role="separator">
+                          <span class="sr-only">{copy.gap(job.file.runs[r - 1].at(-1)!.n + 1, run[0].n - 1)}</span>
+                          <span />
+                          <span class="mr-3 border-t border-dashed border-ink/15" aria-hidden="true" />
+                        </div>
+                      )}
+                      {run.map((line) => {
+                        const comment = commentFor(line.n);
+                        return (
+                          <>
+                            <div
+                              class:list={['ai-line grid grid-cols-[3.5rem_minmax(0,1fr)]', comment && 'has-comment']}
+                              data-line={line.n}
+                            >
+                              <span class="pr-4 text-right text-muted select-none" aria-hidden="true">
+                                {line.n}
+                              </span>
+                              <code class:list={['pr-3 text-ink', job.file.wrap ? 'break-words whitespace-pre-wrap' : 'whitespace-pre']}>
+                                {line.text || ' '}
+                              </code>
+                            </div>
+                            {comment && (
+                              <aside aria-label={copy.commentBy} data-comment-for={line.n} class="ai-comment mt-2 mr-3 mb-3 ml-14 font-sans">
+                                <div class="flex gap-3 rounded-lg border border-accent/40 bg-accent/[0.06] p-3">
+                                  <span
+                                    class="grid size-6 shrink-0 place-items-center rounded-full bg-accent font-mono text-[0.625rem] font-medium text-canvas"
+                                    aria-hidden="true"
+                                  >
+                                    DC
+                                  </span>
+                                  <p class="text-sm text-ink">{comment.text}</p>
+                                </div>
+                              </aside>
+                            )}
+                          </>
+                        );
+                      })}
+                    </>
+                  ))}
+                </div>
+              </figure>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+
+  <div class="mt-24">
+    <h3 class="text-2xl font-semibold tracking-tight md:text-3xl">{copy.toolkit.title}</h3>
+    <div class="mt-8 border-t border-ink/10">
+      <div class="hidden grid-cols-[minmax(0,3fr)_minmax(0,6fr)_minmax(0,3fr)] gap-6 border-b border-ink/10 py-3 font-mono text-xs text-muted md:grid" aria-hidden="true">
+        <span>{copy.toolkit.headers.tool}</span>
+        <span>{copy.toolkit.headers.use}</span>
+        <span>{copy.toolkit.headers.where}</span>
+      </div>
+      <dl>
+        {
+          copy.toolkit.rows.map((row) => (
+            <div class="grid gap-1 border-b border-ink/10 py-4 md:grid-cols-[minmax(0,3fr)_minmax(0,6fr)_minmax(0,3fr)] md:gap-6">
+              <dt class="text-base font-semibold text-ink">{row.tool}</dt>
+              <dd class="text-base text-ink/90">{row.use}</dd>
+              <dd class="font-mono text-xs text-muted md:pt-1">
+                <span class="sr-only">{copy.toolkit.headers.where}: </span>
+                {row.where}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+
+  <div class="mt-24">
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+      <h3 class="text-2xl font-semibold tracking-tight md:text-3xl">{copy.lab.title}</h3>
+      <p class="max-w-xl text-base text-muted lg:pt-1">{copy.lab.note}</p>
+    </div>
+    <ul class="mt-8 grid gap-x-16 md:grid-cols-2">
+      {
+        copy.lab.items.map((item) => (
+          <li class="border-t border-ink/10 pt-6 pb-10">
+            <p class="inline-flex items-center gap-2 rounded-full border border-dashed border-accent/60 px-3 py-1 font-mono text-xs text-ink">
+              <span class="ai-lab-dot size-2 rounded-full border border-accent" aria-hidden="true" />
+              {copy.lab.status}
+            </p>
+            <h4 class="mt-4 text-xl font-semibold">{item.name}</h4>
+            <p class="mt-2 max-w-md text-base text-ink/90">{item.body}</p>
+            <p class="mt-4 font-mono text-xs text-muted">
+              <span class="sr-only">{copy.lab.stackLabel}</span>
+              {item.stack.join(' · ')}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class="mt-16 grid gap-8 border-t border-ink/10 pt-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:gap-16">
+    <div>
+      <h3 class="text-3xl font-semibold tracking-tight md:text-4xl">{copy.cta.title}</h3>
+      <p class="mt-4 max-w-xl text-lg text-ink/90">{copy.cta.body}</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 lg:justify-end">
+      <a href={`mailto:${site.email}`} class={primary}>
+        <Icon name="envelope" />
+        {tr.getInTouch}
+      </a>
+      <CopyEmailButton />
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tabs (ARIA pattern, vertical): arrows, Home and End move between jobs. The new file
+  // wipes in over the old one, the same wipe as Selected work, then the old one hides.
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-ai-tab]')];
+  const panels = [...document.querySelectorAll<HTMLElement>('[data-ai-panel]')];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let active = 0;
+  let layer = 1;
+
+  const bench = document.querySelector<HTMLElement>('[data-ai-bench]');
+  panels.forEach((panel, i) => (panel.hidden = i !== active));
+  bench?.classList.add('is-ready');
+
+  function select(next: number, focus = false) {
+    if (next === active) return;
+    const previous = panels[active];
+    const panel = panels[next];
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('aria-selected', String(i === next));
+      tab.tabIndex = i === next ? 0 : -1;
+    });
+    if (focus) tabs[next].focus();
+
+    // The old file stays fully drawn underneath until the new one has wiped in over it.
+    panels.forEach((other) => other !== previous && other !== panel && (other.hidden = true));
+    previous.classList.replace('is-active', 'is-leaving');
+    panel.classList.remove('is-leaving');
+    panel.hidden = false;
+    panel.style.zIndex = String(++layer);
+    panel.dataset.from = next > active ? 'below' : 'above';
+    void panel.offsetWidth;
+    panel.classList.add('is-active');
+
+    const settle = () => {
+      if (previous.classList.contains('is-active')) return;
+      previous.classList.remove('is-leaving');
+      previous.hidden = true;
+    };
+    if (reduce) settle();
+    else window.setTimeout(settle, 950);
+    active = next;
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(i));
+    tab.addEventListener('keydown', (event) => {
+      const keys: Record<string, number> = {
+        ArrowDown: (i + 1) % tabs.length,
+        ArrowRight: (i + 1) % tabs.length,
+        ArrowUp: (i - 1 + tabs.length) % tabs.length,
+        ArrowLeft: (i - 1 + tabs.length) % tabs.length,
+        Home: 0,
+        End: tabs.length - 1,
+      };
+      if (!(event.key in keys)) return;
+      event.preventDefault();
+      select(keys[event.key], true);
+    });
+  });
+
+  // A comment lights the line it is pinned to while it is hovered or focused.
+  document.querySelectorAll<HTMLElement>('[data-comment-for]').forEach((comment) => {
+    const line = comment.parentElement?.querySelector<HTMLElement>(`[data-line="${comment.dataset.commentFor}"]`);
+    const on = () => line?.classList.add('is-lit');
+    const off = () => line?.classList.remove('is-lit');
+    comment.addEventListener('pointerenter', on);
+    comment.addEventListener('pointerleave', off);
+  });
+</script>

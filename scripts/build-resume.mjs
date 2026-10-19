@@ -28,14 +28,18 @@ const resume = {
   availability: ['Available now', 'Remote, hybrid, on site or relocation', 'COT (UTC−5)'],
 
   profile:
-    'Full stack developer and Software Engineering student at IUE, building web apps with React, Next.js, Node.js, Supabase and MongoDB. I have shipped production apps on Vercel, including Classly, an AI study platform with Google sign in, file storage and paid plans. I work with Claude Code and agentic workflows to deliver faster while reviewing every change. Customer support and back office work have given me strong communication and problem solving skills. Native Spanish, C1 English.',
+    'Full stack developer and Software Engineering student at IUE, building web apps with React, Next.js, Node.js, Supabase and MongoDB, with production apps live on Vercel such as Classly, an AI study platform with paid plans. Strong command of AI tools through Claude Code: I automate development work and everyday processes with agentic workflows, custom skills, hooks and MCP integrations, an approach that fits almost any team or task, and I review every change. Customer support and back office work gave me strong communication and problem solving skills. Native Spanish, C1 English.',
 
   skills: [
     { label: 'Languages', items: ['TypeScript', 'JavaScript', 'HTML', 'CSS'] },
     { label: 'Frontend', items: ['React', 'Next.js', 'Redux', 'Tailwind CSS', 'TanStack Query', 'Vite'] },
     { label: 'Backend', items: ['Node.js', 'Express', 'GraphQL', 'PostgreSQL', 'Supabase', 'Firebase', 'MongoDB'] },
     { label: 'Services', items: ['OpenAI API', 'Stripe', 'Paddle', 'Vercel', 'AWS'] },
-    { label: 'Tools', items: ['Git and GitHub', 'GitHub Actions', 'Docker', 'Vitest', 'Playwright', 'Claude Code', 'Agentic development'] },
+    { label: 'Tools', items: ['Git and GitHub', 'GitHub Actions', 'Docker', 'Vitest', 'Playwright'] },
+    {
+      label: 'AI and automation',
+      items: ['Claude Code', 'Agentic workflows', 'AI process automation', 'Custom skills and hooks', 'MCP servers', 'Context engineering'],
+    },
   ],
 
   languages: [
@@ -56,7 +60,7 @@ const resume = {
       when: '1 yr 8 mo',
       points: [
         'Handled inbound and outbound calls and chats to resolve customer requests and order issues.',
-        'Consistently met monthly productivity, adherence and quality targets, building strong communication, problem solving and goal oriented work habits.',
+        'Consistently met monthly productivity, adherence and quality targets.',
       ],
     },
   ],
@@ -87,13 +91,13 @@ const resume = {
       link: 'github.com/Dani0306/Students-App',
       stack: 'React · Vite · TanStack Query · Node.js · Express · MongoDB',
       points: [
-        'University style system where students and teachers manage courses, subjects and grades, with its own AI assistant, on a Node.js and Express API with JWT authentication and role based access control.',
+        'University style system where students and teachers manage courses, subjects and grades, with an AI assistant, JWT authentication and role based access control.',
       ],
     },
     {
       name: 'Forest Media Récords and Grupo Autos Colorado',
       kind: 'Production websites',
-      link: 'forestmr.vercel.app · grupo-autos-colorado.vercel.app',
+      link: 'forestmediarecords.com · grupo-autos-colorado.vercel.app',
       stack: 'Next.js · TypeScript · Tailwind CSS',
       points: [
         'Websites for a Medellín music company that develops emerging artists, and for a family car dealership in Colombia.',

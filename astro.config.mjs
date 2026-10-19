@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   // Absolute URLs for share cards, canonical links and language alternates.
-  site: 'https://portfolio-rosy-ten-85.vercel.app',
+  site: 'https://danielcolorado.dev',
   // Fonts come from Google Fonts at build time and are served from this site, subset to Latin.
   fonts: [
     {

@@ -593,3 +593,99 @@
   font-size: var(--text-sm);
   line-height: 1.5rem;
 }
+
+/* ---------- How I build with AI ----------
+   The workbench: the selected job's summary unfolds, and its file wipes in over the last one. */
+.ai-tab-marker {
+  opacity: 0;
+  transition: opacity 700ms var(--ease-fluid);
+}
+
+.ai-tab[aria-selected="true"] .ai-tab-marker {
+  opacity: 1;
+}
+
+.ai-tab-summary {
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 700ms var(--ease-fluid);
+}
+
+.ai-tab[aria-selected="true"] .ai-tab-summary {
+  grid-template-rows: 1fr;
+}
+
+/* Without JavaScript the jobs list is left out and every file stacks under its own job. */
+html:not(.js) .ai-tabs {
+  display: none;
+}
+
+.js .ai-panel-label {
+  display: none;
+}
+
+html:not(.js) .ai-panel + .ai-panel {
+  margin-top: 4rem;
+}
+
+.js .ai-bench {
+  display: grid;
+}
+
+.js .ai-panel {
+  position: relative;
+  grid-area: 1 / 1;
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 900ms var(--ease-fluid);
+}
+
+.js .ai-panel[data-from="above"] {
+  clip-path: inset(0 0 100% 0);
+}
+
+.js .ai-panel.is-active,
+.js .ai-panel.is-leaving {
+  clip-path: inset(0);
+}
+
+.js .ai-panel.is-leaving {
+  transition: none;
+}
+
+/* Before the script runs, only the first file shows. */
+.js .ai-bench:not(.is-ready) .ai-panel:not(.is-active) {
+  display: none;
+}
+
+.ai-line.has-comment {
+  background-color: color-mix(in oklab, var(--color-accent) 7%, transparent);
+  transition: background-color 400ms var(--ease-fluid);
+}
+
+.ai-line.has-comment > span:first-child {
+  color: var(--color-accent);
+}
+
+.ai-line.is-lit {
+  background-color: color-mix(in oklab, var(--color-accent) 16%, transparent);
+}
+
+.js .ai-comment {
+  transition:
+    opacity 600ms var(--ease-fluid) 300ms,
+    translate 600ms var(--ease-fluid) 300ms;
+}
+
+.js .ai-panel:not(.is-active) .ai-comment {
+  opacity: 0;
+  translate: 0 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-tab-marker,
+  .ai-tab-summary,
+  .js .ai-panel,
+  .js .ai-comment,
+  .ai-line.has-comment {
+    transition: none;
+  }
+}

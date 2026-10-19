@@ -155,8 +155,8 @@ test.describe('without JavaScript', () => {
   test('every stop is readable over its still', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
-    for (const name of ['About', 'Stack', 'How I work', 'Testing and quality', 'Shipping', 'Selected work']) {
-      await expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
+    for (const name of ['About', 'Stack', 'I build with AI', 'Testing and quality', 'Shipping', 'How I build with AI', 'Selected work']) {
+      await expect(page.getByRole('heading', { level: 2, name, exact: true })).toBeVisible();
     }
     await expect(page.locator('[data-stop-static] img')).toHaveCount(6);
   });
