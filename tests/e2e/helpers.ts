@@ -50,32 +50,42 @@ export async function expectStopShown(page: Page, id: string) {
 }
 
 /**
- * Whether this browser build can decode the site's H.264 clips. Asks for a real first frame,
- * because canPlayType is not enough: Playwright's WebKit on Linux answers yes to H.264 but
- * never loads the clip, so its duration stays NaN.
+ * Whether this browser build can scrub the site's clips. canPlayType is not enough:
+ * Playwright's WebKit on Linux answers yes to H.264 yet never gets a seekable clip. So this
+ * loads the first clip the way the engine does (the page's own size, as a Blob behind an
+ * object URL) and waits for a duration and a seekable range. Logs why when it can't.
  */
-export const canPlayH264 = (page: Page) =>
-  page.evaluate(
-    () =>
-      new Promise<boolean>((resolve) => {
-        const video = document.createElement('video');
-        if (video.canPlayType('video/mp4; codecs="avc1.640028"') === '') return resolve(false);
-        let settled = false;
-        const done = (ok: boolean) => {
-          if (settled) return;
-          settled = true;
-          video.removeAttribute('src');
-          video.load();
-          resolve(ok);
-        };
-        video.muted = true;
-        video.preload = 'auto';
-        video.addEventListener('loadeddata', () => done(true), { once: true });
-        video.addEventListener('error', () => done(false), { once: true });
-        setTimeout(() => done(false), 10_000);
-        video.src = '/video/clip-1-720.mp4';
-      }),
-  );
+export async function canPlayH264(page: Page): Promise<boolean> {
+  const why = await page.evaluate(async () => {
+    const video = document.createElement('video');
+    if (video.canPlayType('video/mp4; codecs="avc1.640028"') === '') return 'canPlayType says no';
+    const phone = window.matchMedia('(max-width: 860px)').matches;
+    const blob = await (await fetch(phone ? '/video/clip-1-720.mp4' : '/video/clip-1.mp4')).blob();
+    const url = URL.createObjectURL(blob);
+    video.muted = true;
+    video.preload = 'auto';
+    const result = await new Promise<string>((resolve) => {
+      const check = () => {
+        if (Number.isFinite(video.duration) && video.duration > 0 && video.seekable.length > 0) resolve('');
+      };
+      video.addEventListener('loadedmetadata', check);
+      video.addEventListener('durationchange', check);
+      video.addEventListener('progress', check);
+      video.addEventListener('error', () => resolve(`media error ${video.error?.code}: ${video.error?.message}`));
+      setTimeout(
+        () => resolve(`timed out: readyState ${video.readyState}, duration ${video.duration}, seekable ranges ${video.seekable.length}`),
+        10_000,
+      );
+      video.src = url;
+    });
+    video.removeAttribute('src');
+    video.load();
+    URL.revokeObjectURL(url);
+    return result;
+  });
+  if (why) console.log(`No scrubbable H.264 in this browser build (${why}).`);
+  return !why;
+}
 
 /** Collects console errors and uncaught exceptions for the whole test. */
 /** Chromium logs this when a navigation starts before the previous page transition ends; it is not a page error. */
