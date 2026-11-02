@@ -54,7 +54,7 @@ export const ui = {
 
     work: {
       title: 'Selected work',
-      intro: 'Four projects that are live on Vercel. Each has a case study, the running site and its code.',
+      intro: 'Five projects that are live on Vercel. Each has a case study, the running site and its code.',
       role: 'Role',
       outcome: 'Outcome',
       stack: 'Stack: ',
@@ -182,7 +182,7 @@ export const ui = {
 
     work: {
       title: 'Proyectos',
-      intro: 'Cuatro proyectos en producción en Vercel. Cada uno tiene su caso de estudio, el sitio en vivo y su código.',
+      intro: 'Cinco proyectos en producción en Vercel. Cada uno tiene su caso de estudio, el sitio en vivo y su código.',
       role: 'Rol',
       outcome: 'Resultado',
       stack: 'Stack: ',

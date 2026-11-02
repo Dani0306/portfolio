@@ -1,6 +1,6 @@
 ---
 title: Classly
-order: 1
+order: 2
 summary: 'A live AI study app with sign in, file storage and subscriptions.'
 role: 'Solo developer: product, design, frontend, backend, database and deploy.'
 outcome: 'Built in five weeks. Live with Google sign in, AI quizzes, summaries and diagrams, and a paid Pro plan through Paddle.'
