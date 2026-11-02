@@ -1,6 +1,6 @@
 ---
 title: Yield
-order: 2
+order: 3
 summary: 'A stats first tracker that logs every bet placed under one strategy and measures how profitable it is.'
 role: 'Solo developer: product, design, frontend, backend, database and deploy.'
 outcome: 'Built in three weeks. Live; turns every logged bet into profit, ROI, yield, win rate and streaks, with live scores.'

@@ -104,7 +104,7 @@ test.describe('shipping', () => {
   test('the deploy log lists every live project and the résumé downloads as a PDF', async ({ page, request }) => {
     await page.goto('/');
     const log = page.getByRole('list', { name: 'Live projects' });
-    await expect(log.getByRole('link')).toHaveCount(4);
+    await expect(log.getByRole('link')).toHaveCount(5);
 
     const resume = page.locator('[data-stop="shipping"]').getByRole('link', { name: 'Download résumé' });
     await expect(resume).toHaveAttribute('href', '/resume.pdf');

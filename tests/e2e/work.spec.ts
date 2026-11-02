@@ -4,10 +4,10 @@ test.describe('selected work', () => {
   test('the pinned frame follows the project in the middle of the screen', async ({ page }) => {
     await page.goto('/#work');
     const items = page.locator('[data-work-item]');
-    await expect(items).toHaveCount(4);
+    await expect(items).toHaveCount(5);
     await expect(page.locator('.work-pin')).toBeVisible();
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       await items.nth(i).evaluate((el) => {
         const r = el.getBoundingClientRect();
         window.scrollTo({ top: window.scrollY + r.top + r.height / 2 - window.innerHeight / 2, behavior: 'instant' });
@@ -20,7 +20,7 @@ test.describe('selected work', () => {
 
   test('every project links to its case study, its live site and its code', async ({ page }) => {
     await page.goto('/#work');
-    for (const name of ['Classly', 'Yield', 'Forest Media Récords', 'Grupo Autos Colorado']) {
+    for (const name of ['PaperTrail', 'Classly', 'Yield', 'Forest Media Récords', 'Grupo Autos Colorado']) {
       await expect(page.getByRole('link', { name: `Case study: ${name}` })).toHaveAttribute('href', /^\/work\/[a-z-]+\/$/);
       await expect(page.getByRole('link', { name: `Live site: ${name}` })).toHaveAttribute('href', /^https:\/\/[a-z0-9.-]+$/);
       await expect(page.getByRole('link', { name: `Code: ${name}` })).toHaveAttribute('href', /^https:\/\/github\.com\/Dani0306\//);
