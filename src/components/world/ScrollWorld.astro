@@ -11,7 +11,7 @@ import { accentColor, world } from '../../config/world';
 import { lastPush } from '../../lib/github';
 import { site, siteCopy } from '../../data/site';
 import { stops as stopCopy } from '../../data/stops';
-import { langFromUrl, t } from '../../i18n/ui';
+import { langFromUrl, localize, t } from '../../i18n/ui';
 import CopyEmailButton from '../CopyEmailButton.astro';
 import Icon from '../Icon.astro';
 import Stop from './Stop.astro';
@@ -52,6 +52,8 @@ const heading = 'text-4xl font-semibold tracking-tight max-[860px]:text-3xl';
 const body = 'mt-4 text-lg text-ink/90 max-[860px]:mt-3 max-[860px]:text-base';
 const primary =
   'inline-flex items-center gap-2 rounded-full bg-accent px-3 py-2 text-base font-semibold text-canvas transition duration-700 ease-fluid hover:brightness-110 active:scale-[0.98]';
+const cta =
+  'inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-lg font-semibold text-canvas transition duration-700 ease-fluid hover:brightness-110 active:scale-[0.98] max-[860px]:px-4 max-[860px]:py-2.5 max-[860px]:text-base';
 const secondary =
   'inline-flex items-center gap-2 rounded-full border border-ink/20 px-3 py-2 text-base font-semibold text-ink transition duration-700 ease-fluid hover:border-ink/40 hover:bg-ink/5 active:scale-[0.98]';
 
@@ -67,13 +69,27 @@ const secondary =
         <span class="mt-2 block text-2xl font-medium tracking-normal text-ink/90 max-[860px]:text-xl">{copy.role}</span>
       </h1>
       <p class="mt-6 text-xl text-ink max-[860px]:mt-4 max-[860px]:text-lg">{hero.positioning}</p>
+      <!-- Recruiters look for the work first: the biggest button on the first screen goes straight to it. -->
       <div class="mt-8 flex flex-wrap items-center gap-3 max-[860px]:mt-6">
-        <a href={`mailto:${site.email}`} class={primary}>
+        <a href="#work" class={cta}>
+          {hero.seeWork}
+          <Icon name="arrowDown" />
+        </a>
+        <a href={`mailto:${site.email}`} class={secondary}>
           <Icon name="envelope" />
           {tr.getInTouch}
         </a>
         <CopyEmailButton />
       </div>
+      <a
+        href={localize(lang, `/work/${hero.latest.slug}/`)}
+        class="group mt-5 inline-flex max-w-full items-baseline gap-2 text-base text-ink/90 hover:text-ink max-[860px]:text-sm"
+      >
+        <span class="shrink-0 rounded-sm bg-accent/15 px-1.5 py-0.5 font-mono text-xs font-medium text-accent">{hero.latest.label}</span>
+        <span class="min-w-0">
+          <span class="font-semibold text-ink">{hero.latest.title}</span>{' · '}{hero.latest.text}{' '}<Icon name="arrowRight" class="size-4 align-[-0.125em] transition-transform duration-300 ease-fluid group-hover:translate-x-0.5" />
+        </span>
+      </a>
       <ul class="mt-6 flex flex-wrap gap-2 font-mono text-xs" aria-label={tr.availability}>
         <li class="inline-flex items-center gap-2 rounded-full border border-accent/60 bg-accent/10 px-3 py-1 font-medium text-ink">
           <span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
