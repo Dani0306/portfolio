@@ -49,8 +49,33 @@ export async function expectStopShown(page: Page, id: string) {
   await expect.poll(() => copyOpacity(page, id), { timeout: 5000 }).toBe(1);
 }
 
+/**
+ * Whether this browser build can decode the site's H.264 clips. Asks for a real first frame,
+ * because canPlayType is not enough: Playwright's WebKit on Linux answers yes to H.264 but
+ * never loads the clip, so its duration stays NaN.
+ */
 export const canPlayH264 = (page: Page) =>
-  page.evaluate(() => document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"') !== '');
+  page.evaluate(
+    () =>
+      new Promise<boolean>((resolve) => {
+        const video = document.createElement('video');
+        if (video.canPlayType('video/mp4; codecs="avc1.640028"') === '') return resolve(false);
+        let settled = false;
+        const done = (ok: boolean) => {
+          if (settled) return;
+          settled = true;
+          video.removeAttribute('src');
+          video.load();
+          resolve(ok);
+        };
+        video.muted = true;
+        video.preload = 'auto';
+        video.addEventListener('loadeddata', () => done(true), { once: true });
+        video.addEventListener('error', () => done(false), { once: true });
+        setTimeout(() => done(false), 10_000);
+        video.src = '/video/clip-1-720.mp4';
+      }),
+  );
 
 /** Collects console errors and uncaught exceptions for the whole test. */
 /** Chromium logs this when a navigation starts before the previous page transition ends; it is not a page error. */
