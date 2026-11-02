@@ -10,6 +10,9 @@ const testsUrl = 'https://github.com/Dani0306/portfolio/tree/main/tests';
 const en = {
   hero: {
     positioning: 'You imagine. I build. It ships.',
+    seeWork: 'See my work',
+    /** The newest project, linked from the hero so the first screen already shows real work. */
+    latest: { label: 'New', slug: 'papertrail', title: 'PaperTrail', text: 'invoices in, spreadsheet rows out, every unsure field flagged' },
   },
 
   about: {
@@ -72,6 +75,8 @@ const en = {
 const es: typeof en = {
   hero: {
     positioning: 'Tú lo imaginas. Yo lo construyo. Sale a producción.',
+    seeWork: 'Ver mi trabajo',
+    latest: { label: 'Nuevo', slug: 'papertrail', title: 'PaperTrail', text: 'de factura a hoja de cálculo, con cada campo dudoso marcado' },
   },
 
   about: {

@@ -78,6 +78,17 @@ test.describe('scroll world', () => {
     }
   });
 
+  test('the hero leads to the work: See my work lands on it, and the newest project opens its case study', async ({ page }) => {
+    await page.goto('/');
+    const hero = page.locator('[data-stop="hello"]');
+    await hero.getByRole('link', { name: 'See my work' }).click();
+    await expect(page.locator('#work')).toBeInViewport();
+
+    await page.goto('/');
+    await hero.getByRole('link', { name: /^New PaperTrail/ }).click();
+    await expect(page).toHaveURL(/\/work\/papertrail\/$/);
+  });
+
   test('Skip intro jumps past the world and then hides', async ({ page }) => {
     await page.goto('/');
     const skip = page.getByRole('link', { name: 'Skip intro' });
