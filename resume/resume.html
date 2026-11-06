@@ -10,9 +10,9 @@
   @page { size: Letter; margin: 0; }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
-  body { font-family: Lato, sans-serif; font-size: 9.2pt; line-height: 1.36; color: #1f2023; font-synthesis: none; }
+  body { font-family: Lato, sans-serif; font-size: 9pt; line-height: 1.3; color: #1f2023; font-synthesis: none; }
   a { color: inherit; text-decoration: none; }
-  .page { width: 8.5in; min-height: 11in; padding: 0.42in 0.55in 0.36in; }
+  .page { width: 8.5in; min-height: 11in; padding: 0.36in 0.55in 0.3in; }
   .icon { width: 1.05em; height: 1.05em; flex: none; }
 
   header { text-align: center; }
@@ -35,9 +35,9 @@
 
   main h2 { display: flex; align-items: center; gap: 12px; font-family: Oswald, sans-serif; font-weight: 500; font-size: 12pt; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 6px -1.6em; }
   main h2 .icon { width: 1.1em; height: 1.1em; }
-  main .block { margin-bottom: 11px; padding-left: 1.6em; }
+  main .block { margin-bottom: 9px; padding-left: 1.6em; }
   .timeline { border-left: 1.5px solid #1f2023; padding-left: 14px; margin-left: -1.05em; }
-  .entry { position: relative; margin-bottom: 7px; }
+  .entry { position: relative; margin-bottom: 6px; }
   .entry::before { content: ''; position: absolute; left: calc(-14px - 4.5px); top: 4px; width: 6px; height: 6px; border: 1.5px solid #1f2023; border-radius: 50%; background: #fff; }
   .entry h3 { font-size: 10pt; margin: 0; font-weight: 700; }
   .entry .sub { margin: 1px 0 0; color: #3b3e44; }
@@ -64,6 +64,7 @@
         <h2>Details</h2>
         <p>Medellín, Colombia</p>
         <p><a href="mailto:danielcolorado.dev@gmail.com">danielcolorado.dev@gmail.com</a></p>
+        <p><a href="https://danielcolorado.dev">danielcolorado.dev</a></p>
         <p><a href="https://github.com/Dani0306">github.com/Dani0306</a></p>
         <p><a href="https://linkedin.com/in/daniel-colorado">linkedin.com/in/daniel-colorado</a></p>
       </div>
@@ -103,7 +104,7 @@
     
     <p class="when">1 yr 8 mo</p>
     
-    <ul><li>Handled inbound and outbound calls and chats to resolve customer requests and order issues.</li><li>Consistently met monthly productivity, adherence and quality targets.</li></ul>
+    <ul><li>Handled calls and chats, inbound and outbound, to resolve customer requests and order issues.</li><li>Consistently met monthly productivity, adherence and quality targets.</li></ul>
   </article></div>
   </section>
       
@@ -115,18 +116,25 @@
     <p class="sub"><a href="https://classly-kappa.vercel.app">classly-kappa.vercel.app</a> &nbsp;|&nbsp; Next.js · TypeScript · Supabase · OpenAI API · Paddle</p>
     
     
-    <ul><li>Students organize classes, save notes and generate AI quizzes, summaries and diagrams, with files attached to each class.</li><li>Google sign in, Postgres and Storage on Supabase, monthly AI usage limits per plan enforced in the database, and a Pro plan billed through Paddle.</li></ul>
+    <ul><li>Classes and notes, with AI generated quizzes, summaries and diagrams.</li><li>Google sign in, Postgres and Storage on Supabase, and a Pro plan billed through Paddle. AI usage limits live in the database: each generation is charged before the model call and refunded if it fails.</li></ul>
+  </article>
+  <article class="entry">
+    <h3>Yield <span class="when">· Stats tracker with automated reminders</span></h3>
+    <p class="sub"><a href="https://yield-sepia-one.vercel.app">yield-sepia-one.vercel.app</a> &nbsp;|&nbsp; Next.js · TypeScript · Supabase · pg_cron · Resend</p>
+    
+    
+    <ul><li>pg_cron checks every minute and a Supabase Edge Function emails kickoff reminders through Resend; live scores are cached to fit a free API plan.</li></ul>
   </article>
   <article class="entry">
     <h3>TaskGenius <span class="when">· AI powered project organizer</span></h3>
     <p class="sub"><a href="https://task-genius-chi.vercel.app">task-genius-chi.vercel.app</a> &nbsp;|&nbsp; Next.js · TypeScript · Supabase · OpenAI API</p>
     
     
-    <ul><li>Manage team tasks and personal projects, with AI generated improvement suggestions and a built in AI assistant for support and app information.</li></ul>
+    <ul><li>Team and personal projects, with AI suggestions and a built in AI assistant.</li></ul>
   </article>
   <article class="entry">
     <h3>Students App <span class="when">· Grade management platform</span></h3>
-    <p class="sub"><a href="https://github.com/Dani0306/Students-App">github.com/Dani0306/Students-App</a> &nbsp;|&nbsp; React · Vite · TanStack Query · Node.js · Express · MongoDB</p>
+    <p class="sub"><a href="https://github.com/Dani0306/Students-App">github.com/Dani0306/Students-App</a> &nbsp;|&nbsp; React · TanStack Query · Node.js · Express · MongoDB</p>
     
     
     <ul><li>University style system where students and teachers manage courses, subjects and grades, with an AI assistant, JWT authentication and role based access control.</li></ul>
@@ -136,7 +144,7 @@
     <p class="sub"><a href="https://forestmediarecords.com">forestmediarecords.com</a> · <a href="https://grupo-autos-colorado.vercel.app">grupo-autos-colorado.vercel.app</a> &nbsp;|&nbsp; Next.js · TypeScript · Tailwind CSS</p>
     
     
-    <ul><li>Websites for a Medellín music company that develops emerging artists, and for a family car dealership in Colombia.</li></ul>
+    <ul><li>Websites for a Medellín music company and a family car dealership. Forest has an AI visitor assistant built from the site data, and a notes vault Claude Code reads and updates each session.</li></ul>
   </article></div>
   </section>
       

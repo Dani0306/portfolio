@@ -1,0 +1,145 @@
+---
+/**
+ * The workflow every change goes through, drawn like a commit graph: one rail,
+ * a marker per step shaped and colored by who owns it, a branch that loops
+ * step 5 back into step 4 when a check fails, and the note that closes the
+ * loop. Each step opens to say, in first person, how I run it.
+ * The heading and intro come in through the slot and sit beside the chart on
+ * wide screens. Without JavaScript every step is shown open.
+ */
+import { ai, type Owner } from '../../data/ai';
+import { langFromUrl } from '../../i18n/ui';
+import Icon from '../Icon.astro';
+
+const lang = langFromUrl(Astro.url);
+const flow = ai[lang].workflow;
+const owners: Owner[] = ['me', 'agent', 'base'];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+  <div class="lg:sticky lg:top-28 lg:self-start">
+    <slot />
+    <ul aria-label={flow.legendLabel} class="mt-10 flex flex-wrap gap-x-6 gap-y-3 border-t border-ink/10 pt-6 text-base text-ink/90">
+      {
+        owners.map((owner) => (
+          <li class="flex items-center gap-3">
+            <span class="flow-shape" data-owner={owner} aria-hidden="true" />
+            {flow.owners[owner]}
+          </li>
+        ))
+      }
+    </ul>
+    <p class="flow-hint mt-4 text-sm text-muted">{flow.hint}</p>
+  </div>
+
+  <figure class="flow" aria-labelledby="flow-label" aria-describedby="flow-summary" data-flow>
+    <figcaption class="sr-only">
+      <span id="flow-label" class="sr-only">{flow.label}</span>
+      <span id="flow-summary" class="sr-only">{flow.summary}</span>
+    </figcaption>
+
+    <ol class="flow-steps" role="list">
+      {
+        flow.steps.map((step, i) => {
+          const n = i + 1;
+          return (
+            <li class="flow-step" data-owner={step.owner} data-step={n} style={`--i: ${i}`}>
+              <span class="flow-rail" aria-hidden="true" />
+              <span class="flow-shape flow-mark" data-owner={step.owner} aria-hidden="true" />
+              {n === 4 && (
+                <span class="flow-loop flow-loop-out" aria-hidden="true">
+                  <span class="flow-loop-label">{flow.loop}</span>
+                  <svg class="flow-loop-arrow" viewBox="0 0 7 10" fill="none">
+                    <path d="M1 1l5 4-5 4" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              )}
+              {n === 5 && <span class="flow-loop flow-loop-in" aria-hidden="true" />}
+
+              <div class="flow-body">
+                <button type="button" id={`flow-step-${n}`} class="flow-trigger" data-flow-trigger>
+                  <span class="flow-head grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] items-baseline">
+                    <span class="flow-num font-mono text-sm tabular-nums">{pad(n)}</span>
+                    <span class="text-xl font-semibold text-ink">{step.title}</span>
+                    <span class="col-start-2 mt-1 text-base text-muted">{step.details}</span>
+                    <span class="sr-only">
+                      {flow.ownerOf[step.owner]}
+                      {n === 5 && ` ${flow.loopNote}`}
+                    </span>
+                  </span>
+                  <Icon name="caretDown" class="flow-caret mt-1.5 size-4 text-muted" />
+                </button>
+                <div id={`flow-detail-${n}`} class="flow-detail">
+                  <div class="min-h-0 overflow-hidden">
+                    <p class="max-w-xl pb-5 pl-8 text-base text-ink/90">{step.body}</p>
+                  </div>
+                </div>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ol>
+
+    <div class="flow-note" style={`--i: ${flow.steps.length}`}>
+      <p class="flow-note-box flex items-start gap-3 rounded-lg border border-dashed border-ink/20 px-4 py-3 text-base text-ink/90">
+        <Icon name="arrowULeftUp" class="mt-1 size-4 text-amber" />
+        <span>
+          {flow.note}
+          <span class="ml-1 font-mono text-xs whitespace-nowrap text-muted">AGENTS.md</span>
+        </span>
+      </p>
+    </div>
+  </figure>
+</div>
+
+<script>
+  // Disclosure buttons: each step opens on its own; arrows, Home and End move between steps.
+  // The steps rise in one after another the first time the chart scrolls into view.
+  const flow = document.querySelector<HTMLElement>('[data-flow]');
+
+  if (flow) {
+    const triggers = [...flow.querySelectorAll<HTMLButtonElement>('[data-flow-trigger]')];
+
+    triggers.forEach((trigger, i) => {
+      const step = trigger.closest<HTMLElement>('.flow-step')!;
+      const detail = step.querySelector<HTMLElement>('.flow-detail')!;
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('aria-controls', detail.id);
+
+      trigger.addEventListener('click', () => {
+        const open = !step.classList.contains('is-open');
+        step.classList.toggle('is-open', open);
+        trigger.setAttribute('aria-expanded', String(open));
+      });
+
+      trigger.addEventListener('keydown', (event) => {
+        const keys: Record<string, number> = {
+          ArrowDown: Math.min(i + 1, triggers.length - 1),
+          ArrowUp: Math.max(i - 1, 0),
+          Home: 0,
+          End: triggers.length - 1,
+        };
+        if (!(event.key in keys)) return;
+        event.preventDefault();
+        triggers[keys[event.key]].focus();
+      });
+    });
+
+    // Only hide what is still below the fold, so nothing on screen ever blinks out.
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce && 'IntersectionObserver' in window && flow.getBoundingClientRect().top > window.innerHeight * 0.85) {
+      flow.dataset.reveal = '';
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          flow.classList.add('is-revealed');
+          observer.disconnect();
+        },
+        { rootMargin: '0px 0px -15% 0px' },
+      );
+      observer.observe(flow);
+    }
+  }
+</script>

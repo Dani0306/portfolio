@@ -1,6 +1,7 @@
 ---
 /**
- * How I build with AI. The workbench: three jobs on the left switch the file
+ * How I build with AI. First the workflow chart (AIWorkflow), the process every
+ * change goes through. Then the workbench: three jobs on the left switch the file
  * open on the right, a verbatim excerpt from one of my repos with my review
  * comments pinned to its lines. Then the toolkit, the lab (projects not
  * shipped yet, labeled as such) and a closing call to action.
@@ -11,6 +12,7 @@ import { site } from '../../data/site';
 import { langFromUrl, t } from '../../i18n/ui';
 import CopyEmailButton from '../CopyEmailButton.astro';
 import Icon from '../Icon.astro';
+import AIWorkflow from './AIWorkflow.astro';
 
 const lang = langFromUrl(Astro.url);
 const tr = t(lang);
@@ -24,9 +26,14 @@ const primary =
 ---
 
 <section id="ai" tabindex="-1" aria-labelledby="ai-title" class="scroll-mt-24 px-4 py-24 outline-none md:px-16">
-  <div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+  <AIWorkflow>
+    <h2 id="ai-title" class="text-4xl font-semibold tracking-tight md:text-5xl">{copy.title}</h2>
+    <p class="mt-6 max-w-xl text-lg text-ink/90">{copy.intro}</p>
+  </AIWorkflow>
+
+  <div class="mt-24 grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
     <div>
-      <h2 id="ai-title" class="text-4xl font-semibold tracking-tight md:text-5xl">{copy.title}</h2>
+      <h3 class="text-2xl font-semibold tracking-tight md:text-3xl">{copy.jobsLabel}</h3>
       <p class="mt-6 max-w-xl text-lg text-ink/90">{copy.lead}</p>
 
       <div role="tablist" aria-label={copy.jobsLabel} aria-orientation="vertical" class="ai-tabs mt-10 border-t border-ink/10" data-ai-tabs>

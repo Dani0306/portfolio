@@ -680,6 +680,327 @@ html:not(.js) .ai-panel + .ai-panel {
   translate: 0 0.5rem;
 }
 
+/* ---------- The workflow ----------
+   A commit graph: one rail through a 3rem gutter, a marker per step shaped by its owner,
+   a branch on the left that loops step 5 back into step 4, and a dashed elbow into the note. */
+.flow {
+  --rail-x: 1.75rem;
+  --lane-x: 0.375rem;
+  --mark-y: 1.875rem; /* centre of the title's first line: 1rem of padding + half of 1.75rem */
+  --rail: color-mix(in oklab, var(--color-ink) 18%, transparent);
+  --loop: color-mix(in oklab, var(--color-green) 65%, transparent);
+}
+
+/* Owner: amber square for me, green dot for the agent, hollow ring for the foundation. */
+[data-owner="me"] {
+  --owner: var(--color-amber);
+}
+
+[data-owner="agent"] {
+  --owner: var(--color-green);
+}
+
+[data-owner="base"] {
+  --owner: var(--color-ink);
+}
+
+.flow-shape {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  background-color: var(--owner);
+}
+
+.flow-shape[data-owner="me"] {
+  border-radius: 2px;
+}
+
+.flow-shape[data-owner="base"] {
+  background-color: var(--color-canvas);
+  box-shadow: inset 0 0 0 2px var(--owner);
+}
+
+.flow-step {
+  position: relative;
+  padding-left: 3rem;
+}
+
+.flow-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--rail-x) - 0.5px);
+  width: 1px;
+  background-color: var(--rail);
+  transform-origin: top;
+}
+
+.flow-step:first-child .flow-rail {
+  top: var(--mark-y);
+}
+
+/* Past the last step the rail turns dashed and runs on into the note. */
+.flow-step:last-child .flow-rail {
+  bottom: 0;
+  background: repeating-linear-gradient(to bottom, var(--rail) 0 4px, transparent 4px 8px);
+}
+
+.flow-step:last-child .flow-rail::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--mark-y);
+  background-color: var(--rail);
+}
+
+.flow-mark {
+  position: absolute;
+  top: calc(var(--mark-y) - 0.3125rem);
+  left: calc(var(--rail-x) - 0.3125rem);
+  /* A gap in the rail around every marker, like a commit dot. */
+  outline: 4px solid var(--color-canvas);
+  transition: scale 300ms var(--ease-fluid);
+}
+
+.flow-step.is-open .flow-mark {
+  scale: 1.3;
+}
+
+/* The loop: out of step 5's marker, up the lane on the left, back into step 4. */
+.flow-loop {
+  position: absolute;
+  left: var(--lane-x);
+  border: 0 solid var(--loop);
+  color: var(--loop);
+  transition:
+    border-color 300ms var(--ease-fluid),
+    color 300ms var(--ease-fluid);
+}
+
+.flow-loop-out {
+  top: var(--mark-y);
+  bottom: 0;
+  width: calc(var(--rail-x) - var(--lane-x) - 0.6875rem);
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-top-left-radius: 0.75rem;
+}
+
+.flow-loop-in {
+  top: 0;
+  height: var(--mark-y);
+  width: calc(var(--rail-x) - var(--lane-x));
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+  border-bottom-left-radius: 0.75rem;
+}
+
+.flow-loop-arrow {
+  position: absolute;
+  top: -0.3125rem;
+  right: -0.3125rem;
+  width: 0.4375rem;
+  height: 0.625rem;
+}
+
+.flow-loop-label {
+  position: absolute;
+  top: 50%;
+  left: -0.5px;
+  padding-block: 0.375rem;
+  background-color: var(--color-canvas);
+  color: var(--color-green);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1;
+  writing-mode: vertical-rl;
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* The loop brightens while either end of it is open. */
+.flow:has(.flow-step:is([data-step="4"], [data-step="5"]).is-open) {
+  --loop: var(--color-green);
+}
+
+.flow-body {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
+}
+
+.flow-step:first-child .flow-body {
+  border-top: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
+}
+
+.flow-trigger {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flow-num {
+  color: var(--owner);
+}
+
+.flow-head {
+  transform-origin: left center;
+  transition: scale 160ms ease-out;
+}
+
+.flow-trigger:active .flow-head {
+  scale: 0.985;
+}
+
+.flow-caret {
+  transition:
+    rotate 300ms var(--ease-fluid),
+    color 200ms ease;
+}
+
+.flow-step.is-open .flow-caret {
+  rotate: 180deg;
+  color: var(--color-ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .flow-trigger:hover .flow-caret {
+    color: var(--color-ink);
+  }
+}
+
+/* Opening is a touch slower than closing: the eye follows what arrives, not what leaves. */
+.flow-detail {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.js .flow-detail {
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 260ms var(--ease-fluid),
+    visibility 0s linear 260ms;
+}
+
+.js .flow-step.is-open .flow-detail {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows 420ms var(--ease-fluid),
+    visibility 0s;
+}
+
+.js .flow-detail p {
+  opacity: 0;
+  translate: 0 -0.25rem;
+  transition:
+    opacity 200ms ease-out,
+    translate 200ms ease-out;
+}
+
+.js .flow-step.is-open .flow-detail p {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 360ms var(--ease-fluid) 80ms,
+    translate 360ms var(--ease-fluid) 80ms;
+}
+
+/* Without JavaScript every step is open and nothing pretends to be a control. */
+html:not(.js) .flow-caret,
+html:not(.js) .flow-hint {
+  display: none;
+}
+
+html:not(.js) .flow-trigger {
+  cursor: default;
+}
+
+/* The dashed elbow from step 6 into the note. */
+.flow-note {
+  padding-top: 1.25rem;
+  padding-left: 3rem;
+}
+
+.flow-note-box {
+  position: relative;
+}
+
+.flow-note-box::before {
+  content: "";
+  position: absolute;
+  top: -1.25rem;
+  left: calc(var(--rail-x) - 3rem - 0.5px);
+  width: calc(3rem - var(--rail-x));
+  height: calc(50% + 1.25rem);
+  border-bottom: 1px dashed var(--rail);
+  border-left: 1px dashed var(--rail);
+  border-bottom-left-radius: 0.75rem;
+}
+
+/* Reveal: the rail draws down while each step rises in, 70ms apart. Set only by the script. */
+.flow[data-reveal] :is(.flow-step, .flow-note) {
+  opacity: 0;
+  translate: 0 0.5rem;
+}
+
+.flow[data-reveal] .flow-rail {
+  scale: 1 0;
+}
+
+.flow[data-reveal] .flow-loop {
+  opacity: 0;
+}
+
+.flow.is-revealed :is(.flow-step, .flow-note) {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 600ms var(--ease-fluid) calc(var(--i) * 70ms),
+    translate 600ms var(--ease-fluid) calc(var(--i) * 70ms);
+}
+
+.flow.is-revealed .flow-rail {
+  scale: 1 1;
+  transition: scale 500ms var(--ease-fluid) calc(var(--i) * 70ms);
+}
+
+.flow.is-revealed .flow-loop {
+  opacity: 1;
+  transition:
+    opacity 500ms var(--ease-fluid) 520ms,
+    border-color 300ms var(--ease-fluid),
+    color 300ms var(--ease-fluid);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-mark,
+  .flow-loop,
+  .flow-head,
+  .flow-caret,
+  .js .flow-detail,
+  .js .flow-step.is-open .flow-detail {
+    transition: none;
+  }
+
+  .js .flow-detail p,
+  .js .flow-step.is-open .flow-detail p {
+    translate: none;
+    transition: opacity 150ms ease;
+  }
+
+  .flow[data-reveal] :is(.flow-step, .flow-note, .flow-rail, .flow-loop) {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ai-tab-marker,
   .ai-tab-summary,

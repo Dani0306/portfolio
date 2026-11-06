@@ -2,7 +2,7 @@
 version: 1
 slug: "src-components-homepage-astro"
 primary_target: "src/components/HomePage.astro"
-related_targets: ["src/components/sections/AI.astro"]
+related_targets: ["src/components/sections/AI.astro", "src/components/sections/AIWorkflow.astro"]
 ---
 
 # Home page: AI section
@@ -19,9 +19,9 @@ OWN-WORLD: the site's editor world: canvas #0e0f12, ink #ece8df, amber accent, G
 
 STORY: the visitor sees how he gives AI context, tools and rules, how that builds apps, automates processes and turns ideas into products, what is in the lab next, then gets in touch.
 
-FIRST VIEWPORT: heading and lead on the left; the workbench on the right, an editor pane showing a real file from one of his repos with review comments pinned to specific lines.
+FIRST VIEWPORT: heading, intro and owner legend on the left (sticky on wide screens); the workflow chart on the right, six steps drawn as a commit graph: one rail, a marker per step shaped and colored by owner (amber square: I own; green dot: agent executes; hollow ring: foundation), a green branch looping step 5 back into step 4 labeled "Fails", and a dashed elbow from step 6 into the note that learnings return to the context file. Steps open to a first person sentence. The workbench follows.
 
-SIGNATURE: the workbench. Three jobs (build apps, automate processes, ideas into products) switch the open file with the Work section's clip wipe; each comment lights its line.
+SIGNATURE: the workflow chart, then the workbench. Three jobs (build apps, automate processes, ideas into products) switch the open file with the Work section's clip wipe; each comment lights its line.
 
 PROOF: verbatim excerpts with real line numbers and GitHub links; lab concepts labeled "In the lab", never shown as shipped.
 
