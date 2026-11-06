@@ -2,7 +2,8 @@ import type { Lang } from '../i18n/ui';
 
 /**
  * "How I build with AI": how I direct AI to build apps, automate processes
- * and turn ideas into products. The files on the workbench are verbatim
+ * and turn ideas into products. The workflow is the process every change goes
+ * through, step by step, with who owns each step. The files on the workbench are verbatim
  * excerpts from my public repos, with their real line numbers. The lab lists
  * projects I am building next; they are labeled as not shipped, never shown
  * as finished work.
@@ -28,6 +29,17 @@ export interface Job {
   };
   /** Review comments pinned to a line number of the excerpt. */
   comments: { line: number; text: string }[];
+}
+
+/** Who carries a step of the workflow: me, the agent, or the groundwork under both. */
+export type Owner = 'me' | 'agent' | 'base';
+
+export interface FlowStep {
+  owner: Owner;
+  title: string;
+  details: string;
+  /** What I do at this step, in first person; unfolds when the step is opened. */
+  body: string;
 }
 
 const classly = {
@@ -99,6 +111,58 @@ const forest = {
 
 const en = {
   title: 'How I build with AI',
+  intro:
+    'I treat AI agents like fast, capable teammates who need clear specs, checks they can run, and a human reviewing their work.',
+  workflow: {
+    label: 'My agentic development process',
+    summary:
+      'Six steps, from top to bottom. Step 1 is the foundation. I own steps 2, 3 and 6. The agent executes steps 4 and 5. When a check in step 5 fails, the work goes back to step 4. After step 6, what I learned goes back into the context file.',
+    legendLabel: 'Who owns each step',
+    owners: { me: 'I own', agent: 'Agent executes', base: 'Foundation' },
+    ownerOf: { me: 'I own this step.', agent: 'The agent executes this step.', base: 'Foundation step.' },
+    hint: 'Open a step to see how I run it.',
+    loop: 'Fails',
+    loopNote: 'If any check fails, the work goes back to step 4.',
+    note: 'Learnings go back into the context file.',
+    steps: [
+      {
+        owner: 'base',
+        title: 'Set up the context',
+        details: 'AGENTS.md, skills, tests, CI',
+        body: 'I keep an AGENTS.md, skills, tests and CI in every repo, so each session starts from the same rules and the same checks.',
+      },
+      {
+        owner: 'me',
+        title: 'Write the spec',
+        details: 'Goal, constraints, acceptance tests',
+        body: 'I write a spec with clear acceptance tests before any code is generated, so the agent has a definition of done.',
+      },
+      {
+        owner: 'me',
+        title: 'Review the plan',
+        details: 'The agent drafts, I approve',
+        body: 'I have the agent draft a plan first. I approve it, change it or stop it before a single file is touched.',
+      },
+      {
+        owner: 'agent',
+        title: 'Execute in parallel',
+        details: 'Sandboxed branches or worktrees',
+        body: 'I give each task its own branch or worktree, so agents working in parallel never collide with each other or with main.',
+      },
+      {
+        owner: 'agent',
+        title: 'Check its own work',
+        details: 'Run tests, build, lint',
+        body: 'I let the agent run the tests, the build and the linter itself, so it fixes what fails before I ever see the diff.',
+      },
+      {
+        owner: 'me',
+        title: 'Review diff and ship',
+        details: 'CI gate, PR review, deploy',
+        body: 'I read every diff, CI has to pass, and the pull request gets my review before anything deploys.',
+      },
+    ] satisfies FlowStep[] as FlowStep[],
+  },
   lead: 'I do not ask AI for answers and paste them. I direct it like a team: I write the context it works from, give it the tools it needs and check every change before it ships. That is how one person builds complete apps, automates the slow parts of a process and turns an idea into something people use.',
   jobsLabel: 'What I use AI for',
   openFile: (path: string) => `Open ${path} on GitHub`,
@@ -190,6 +254,58 @@ const en = {
 
 const es: typeof en = {
   title: 'Cómo construyo con IA',
+  intro:
+    'Trato a los agentes de IA como compañeros de equipo rápidos y capaces que necesitan especificaciones claras, pruebas que puedan ejecutar y una persona que revise su trabajo.',
+  workflow: {
+    label: 'Mi proceso de desarrollo con agentes',
+    summary:
+      'Seis pasos, de arriba hacia abajo. El paso 1 es la base. Yo me encargo de los pasos 2, 3 y 6. El agente ejecuta los pasos 4 y 5. Cuando una revisión del paso 5 falla, el trabajo vuelve al paso 4. Después del paso 6, lo aprendido vuelve al archivo de contexto.',
+    legendLabel: 'Quién se encarga de cada paso',
+    owners: { me: 'Yo me encargo', agent: 'El agente ejecuta', base: 'Base' },
+    ownerOf: { me: 'Yo me encargo de este paso.', agent: 'El agente ejecuta este paso.', base: 'Paso base.' },
+    hint: 'Abre un paso para ver cómo lo hago.',
+    loop: 'Falla',
+    loopNote: 'Si alguna revisión falla, el trabajo vuelve al paso 4.',
+    note: 'Lo aprendido vuelve al archivo de contexto.',
+    steps: [
+      {
+        owner: 'base',
+        title: 'Preparar el contexto',
+        details: 'AGENTS.md, skills, pruebas, CI',
+        body: 'Mantengo un AGENTS.md, skills, pruebas y CI en cada repositorio, así cada sesión empieza con las mismas reglas y las mismas revisiones.',
+      },
+      {
+        owner: 'me',
+        title: 'Escribir la especificación',
+        details: 'Objetivo, restricciones, pruebas de aceptación',
+        body: 'Escribo una especificación con pruebas de aceptación claras antes de que se genere cualquier código, así el agente sabe cuándo ha terminado.',
+      },
+      {
+        owner: 'me',
+        title: 'Revisar el plan',
+        details: 'El agente lo redacta, yo lo apruebo',
+        body: 'Le pido al agente que primero redacte un plan. Yo lo apruebo, lo cambio o lo detengo antes de que toque un solo archivo.',
+      },
+      {
+        owner: 'agent',
+        title: 'Ejecutar en paralelo',
+        details: 'Ramas aisladas o worktrees',
+        body: 'Le doy a cada tarea su propia rama o worktree, así los agentes que trabajan en paralelo nunca chocan entre sí ni con main.',
+      },
+      {
+        owner: 'agent',
+        title: 'Revisa su propio trabajo',
+        details: 'Pruebas, build, lint',
+        body: 'Dejo que el agente ejecute las pruebas, el build y el linter por su cuenta, así corrige lo que falla antes de que yo vea el diff.',
+      },
+      {
+        owner: 'me',
+        title: 'Revisar el diff y publicar',
+        details: 'CI obligatorio, revisión del PR, despliegue',
+        body: 'Leo cada diff, el CI tiene que pasar y el pull request lleva mi revisión antes de que algo se despliegue.',
+      },
+    ],
+  },
   lead: 'No le pido respuestas a la IA para copiarlas y pegarlas. La dirijo como a un equipo: escribo el contexto con el que trabaja, le doy las herramientas que necesita y reviso cada cambio antes de publicarlo. Así una sola persona construye aplicaciones completas, automatiza las partes lentas de un proceso y convierte una idea en algo que la gente usa.',
   jobsLabel: 'Para qué uso la IA',
   openFile: (path: string) => `Abrir ${path} en GitHub`,

@@ -11,6 +11,53 @@ test.describe('how I build with AI', () => {
     await expect(page.locator('#ai')).toBeInViewport();
   });
 
+  test('the workflow opens with the intro, a legend and six steps', async ({ page }) => {
+    await page.goto('/#ai');
+    await expect(page.locator('#ai').getByText('I treat AI agents like fast, capable teammates')).toBeVisible();
+    const chart = page.getByRole('figure', { name: 'My agentic development process' });
+    await expect(chart).toBeVisible();
+    await expect(chart.getByRole('listitem')).toHaveCount(6);
+    const legend = page.getByRole('list', { name: 'Who owns each step' }).getByRole('listitem');
+    await expect(legend).toHaveText(['I own', 'Agent executes', 'Foundation']);
+    const owners = await chart.locator('.flow-step').evaluateAll((steps) => steps.map((s) => (s as HTMLElement).dataset.owner));
+    expect(owners).toEqual(['base', 'me', 'me', 'agent', 'agent', 'me']);
+    await expect(chart.getByText('Learnings go back into the context file.')).toBeVisible();
+  });
+
+  test('a step opens and closes with a click, Enter and Space', async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto('/#ai');
+    const spec = page.getByRole('button', { name: /Write the spec/ });
+    const body = page.getByText('I write a spec with clear acceptance tests');
+    await expect(spec).toHaveAttribute('aria-expanded', 'false');
+    await expect(body).toBeHidden();
+
+    await spec.click();
+    await expect(spec).toHaveAttribute('aria-expanded', 'true');
+    await expect(body).toBeVisible();
+    await spec.click();
+    await expect(spec).toHaveAttribute('aria-expanded', 'false');
+    await expect(body).toBeHidden();
+
+    await spec.focus();
+    await page.keyboard.press('Enter');
+    await expect(spec).toHaveAttribute('aria-expanded', 'true');
+    await page.keyboard.press('ArrowDown');
+    const plan = page.getByRole('button', { name: /Review the plan/ });
+    await expect(plan).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect(plan).toHaveAttribute('aria-expanded', 'true');
+    await expect(spec).toHaveAttribute('aria-expanded', 'true');
+    expect(errors).toEqual([]);
+  });
+
+  test('step 5 tells screen readers where a failure goes', async ({ page }) => {
+    await page.goto('/#ai');
+    await expect(page.getByRole('button', { name: /Check its own work/ })).toHaveAccessibleName(
+      /If any check fails, the work goes back to step 4/,
+    );
+  });
+
   test('the workbench switches files with clicks and arrow keys', async ({ page }) => {
     const errors = watchErrors(page);
     await page.goto('/#ai');
@@ -59,6 +106,8 @@ test.describe('how I build with AI', () => {
     await page.goto('/es/#ai');
     await expect(page.getByRole('heading', { level: 2, name: 'Cómo construyo con IA' })).toBeVisible();
     await expect(page.getByRole('tab', { name: /Automatizar procesos/ })).toBeVisible();
+    await expect(page.getByRole('figure', { name: 'Mi proceso de desarrollo con agentes' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Revisa su propio trabajo/ })).toBeVisible();
     await expect(page.getByText('En el laboratorio').first()).toBeVisible();
   });
 });
@@ -72,5 +121,11 @@ test.describe('how I build with AI, without JavaScript', () => {
       await expect(page.locator('#ai .ai-panel-label', { hasText: label })).toBeVisible();
     }
     await expect(page.locator('#ai [role="tablist"]')).toBeHidden();
+  });
+
+  test('every workflow step is shown open', async ({ page }) => {
+    await page.goto('/#ai');
+    await expect(page.getByText('I write a spec with clear acceptance tests')).toBeVisible();
+    await expect(page.getByText('the pull request gets my review before anything deploys')).toBeVisible();
   });
 });
