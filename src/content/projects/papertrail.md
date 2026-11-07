@@ -1,6 +1,6 @@
 ---
 title: PaperTrail
-order: 1
+order: 2
 summary: 'Turns invoice PDFs and images into clean spreadsheet rows, and flags every field it is not sure about for a person to check instead of guessing.'
 role: 'Solo developer: product, design, frontend, backend, database, evals and deploy.'
 outcome: 'Live demo with eight sample invoices. On a 30 document test set it reads 99.8% of fields correctly for about $0.0005 a document, and a CI gate blocks any change that costs more than 2 points of accuracy.'

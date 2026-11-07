@@ -12,13 +12,13 @@ const en = {
     positioning: 'You imagine. I build. It ships.',
     seeWork: 'See my work',
     /** The newest project, linked from the hero so the first screen already shows real work. */
-    latest: { label: 'New', slug: 'papertrail', title: 'PaperTrail', text: 'invoices in, spreadsheet rows out, every unsure field flagged' },
+    latest: { label: 'New', slug: 'citedesk', title: 'CiteDesk', text: 'answers only from the docs, with a citation on every sentence' },
   },
 
   about: {
     title: 'About',
     body: [
-      'I started programming in 2022, the year I began Software Engineering at IUE, by rebuilding apps I used every day: YouTube, Google and Padlet. That habit stuck. Today I build complete products, from the database to the deploy, and five of them are live.',
+      'I started programming in 2022, the year I began Software Engineering at IUE, by rebuilding apps I used every day: YouTube, Google and Padlet. That habit stuck. Today I build complete products, from the database to the deploy, and six of them are live.',
       'I use Claude Code and agentic workflows to move fast while keeping every change reviewed and understood. Two years in customer support taught me to listen first and explain clearly, which is how I like to work with a team. Right now I am going deeper into testing, Docker and AWS.',
     ],
     facts: [
@@ -76,13 +76,13 @@ const es: typeof en = {
   hero: {
     positioning: 'Tú lo imaginas. Yo lo construyo. Sale a producción.',
     seeWork: 'Ver mi trabajo',
-    latest: { label: 'Nuevo', slug: 'papertrail', title: 'PaperTrail', text: 'de factura a hoja de cálculo, con cada campo dudoso marcado' },
+    latest: { label: 'Nuevo', slug: 'citedesk', title: 'CiteDesk', text: 'responde solo con la documentación, con una cita en cada frase' },
   },
 
   about: {
     title: 'Sobre mí',
     body: [
-      'Empecé a programar en 2022, el año en que comencé Ingeniería de Software en la IUE, reconstruyendo aplicaciones que usaba a diario: YouTube, Google y Padlet. Ese hábito se quedó. Hoy construyo productos completos, de la base de datos al despliegue, y cinco de ellos están en producción.',
+      'Empecé a programar en 2022, el año en que comencé Ingeniería de Software en la IUE, reconstruyendo aplicaciones que usaba a diario: YouTube, Google y Padlet. Ese hábito se quedó. Hoy construyo productos completos, de la base de datos al despliegue, y seis de ellos están en producción.',
       'Uso Claude Code y flujos agénticos para avanzar rápido sin dejar de revisar y entender cada cambio. Dos años en servicio al cliente me enseñaron a escuchar primero y explicar con claridad, y así me gusta trabajar en equipo. Ahora estoy profundizando en pruebas, Docker y AWS.',
     ],
     facts: [

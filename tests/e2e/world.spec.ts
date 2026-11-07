@@ -85,8 +85,8 @@ test.describe('scroll world', () => {
     await expect(page.locator('#work')).toBeInViewport();
 
     await page.goto('/');
-    await hero.getByRole('link', { name: /^New PaperTrail/ }).click();
-    await expect(page).toHaveURL(/\/work\/papertrail\/$/);
+    await hero.getByRole('link', { name: /^New CiteDesk/ }).click();
+    await expect(page).toHaveURL(/\/work\/citedesk\/$/);
   });
 
   test('Skip intro jumps past the world and then hides', async ({ page }) => {
@@ -115,7 +115,7 @@ test.describe('shipping', () => {
   test('the deploy log lists every live project and the résumé downloads as a PDF', async ({ page, request }) => {
     await page.goto('/');
     const log = page.getByRole('list', { name: 'Live projects' });
-    await expect(log.getByRole('link')).toHaveCount(5);
+    await expect(log.getByRole('link')).toHaveCount(6);
 
     const resume = page.locator('[data-stop="shipping"]').getByRole('link', { name: 'Download résumé' });
     await expect(resume).toHaveAttribute('href', '/resume.pdf');
