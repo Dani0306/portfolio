@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { watchErrors } from './helpers';
 
 const PROJECTS = [
+  { slug: 'citedesk', title: 'CiteDesk' },
   { slug: 'papertrail', title: 'PaperTrail' },
   { slug: 'classly', title: 'Classly' },
   { slug: 'yield', title: 'Yield' },

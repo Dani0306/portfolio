@@ -1,6 +1,6 @@
 ---
 title: Grupo Autos Colorado
-order: 5
+order: 6
 summary: 'Website for a family car dealership in Colombia, for buying and selling vehicles.'
 role: 'Solo developer: design, build and deploy.'
 outcome: 'Built in four days. Live, with the vehicle catalog and a direct WhatsApp contact.'
